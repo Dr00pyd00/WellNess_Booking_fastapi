@@ -6,7 +6,6 @@ from sqlalchemy import (
     String,
     Integer,
     Enum as sqlEnum,
-    null,
 )
 
 from app.core.database import Base
