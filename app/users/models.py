@@ -6,6 +6,7 @@ from sqlalchemy import (
     String,
     Integer,
     Enum as sqlEnum,
+    null,
 )
 
 from app.core.database import Base
@@ -37,6 +38,11 @@ class User(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
         String,
         nullable=False,
 
+    )
+
+    password = Column(
+        String,
+        nullable=False
     )
 
     name = Column(
