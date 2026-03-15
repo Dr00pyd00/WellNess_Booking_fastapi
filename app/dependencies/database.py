@@ -8,6 +8,9 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+        
 # si async:
     # comme pour ouvrir un fichier text par exemple avec with: le with va fermer correctement:
 async def async_get_db():
