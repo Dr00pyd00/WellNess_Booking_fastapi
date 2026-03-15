@@ -4,6 +4,7 @@ from sqlalchemy import (
     Boolean,
     Column,
     Integer,
+    Numeric,
     String,
     Enum as sqlEnum,
     func,
@@ -56,13 +57,15 @@ class Practitioner(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
         default=False,
     )
 
-    adresse = Column(
+    address = Column(
         String,
         nullable=False
     )
 
     price = Column(
-        String,
+        # precision => 10 chiffre au total
+        # scale => 2 chiffre apres virgule
+        Numeric(precision=10,scale=2),
         nullable=True, # non renseigner ?
     )
 
