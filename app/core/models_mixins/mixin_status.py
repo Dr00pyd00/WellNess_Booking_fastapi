@@ -12,6 +12,17 @@ class StatusEnum(PyEnum):
 
 
 class StatusMixin():
+    """Mixin for status:
+
+    -ACTIVE = normal flow
+
+    -ARCHIVED = in db but not accessible (just by admins)
+
+    -SIGNALED = report done but not analysed
+
+    -REPORTED = out of app
+    
+    """
 
     status = Column(
         Enum,
