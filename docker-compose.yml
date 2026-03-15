@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    # endroit ou va etre stocker la data :
+        # dans mon ordi  /var/lib/docker/volumes/wellness_booking_wellness_data/
+        # dans le ocntainer :/var/lib/postgresql/data
+    volumes:
+      - wellness_data:/var/lib/postgresql/data
+
+# on declare le fichier 
+volumes:
+  wellness_data:
