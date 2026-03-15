@@ -7,6 +7,7 @@ from sqlalchemy import (
     Integer,
     Enum as sqlEnum,
 )
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 from app.core.models_mixins.mixin_soft_delete import SoftDeleteMixin
@@ -73,6 +74,10 @@ class User(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
         server_default=UserRoleEnum.PATIENT,
         default=UserRoleEnum.PATIENT
     )
+
+    # foreign key:
+    # uselist False : empeche de retourner une liste d'objet donc mieux pour one tot one.
+    practitioner_profile = relationship("Practitioner", back_populates="user_profile", uselist=False)
 
 
     
