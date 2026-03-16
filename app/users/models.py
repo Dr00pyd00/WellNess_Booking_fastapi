@@ -75,9 +75,13 @@ class User(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
         default=UserRoleEnum.PATIENT
     )
 
-    # foreign key:
-    # uselist False : empeche de retourner une liste d'objet donc mieux pour one tot one.
-    practitioner_profile = relationship("Practitioner", back_populates="user_profile", uselist=False)
+    # foreign keys ========================== #
 
+    # practitioner:
+            # uselist False : empeche de retourner une liste d'objet donc mieux pour one tot one.
+    practitioner_profile = relationship("Practitioner", back_populates="patient", uselist=False)
+
+    # booking:
+    owner_bookings = relationship("Booking", back_populates="user_profile")
 
     

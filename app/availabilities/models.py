@@ -66,12 +66,16 @@ class Availability(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
     )
 
 
-    # foreign key for Practitioner:
+    # foreign keys
+    
+    # Practitioner:
     practitioner_id = Column(
         Integer,
         ForeignKey("practitioners.id", ondelete="CASCADE"),
         nullable=False,
     )
-
     practitioner_profile = relationship("Practitioner", back_populates="own_availabilities")
+
+    # booking:
+    current_booking = relationship("Booking", back_populates="availability", uselist=False)
 
