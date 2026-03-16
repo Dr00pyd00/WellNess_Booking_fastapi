@@ -74,7 +74,7 @@ class Practitioner(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
         nullable=True,
     )   
 
-    # Foreign key:
+    # Foreign key for User:
     user_id = Column(
         Integer,
         ForeignKey("users.id", ondelete="CASCADE"),
@@ -84,4 +84,5 @@ class Practitioner(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
 
     user_profile = relationship("User", back_populates="practitioner_profile")
 
-
+    # Foreign key for Availability:
+    own_availabilities = relationship("Availability", back_populates="practitioner_profile")
