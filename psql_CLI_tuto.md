@@ -21,7 +21,7 @@ wellNessDb=#
 
 Ce que ca dit a Postgres:
 
--`Host` => regarde sur tel Machine (c'est son ip)
--`Port` => ecoute sur tel port de cette machine.
--`User` => connecte toi en tant que ...
--`database` => ouvre cette database 
+- `Host` => regarde sur tel Machine (c'est son ip)
+- `Port` => ecoute sur tel port de cette machine.
+- `User` => connecte toi en tant que ...
+- `database` => ouvre cette database 
