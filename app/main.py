@@ -9,3 +9,5 @@ app = FastAPI()
 @app.get("/")
 def root():
     return {"message":f"host: {app_settings.db_url}"}
+
+
