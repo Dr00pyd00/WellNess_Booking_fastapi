@@ -25,3 +25,23 @@ Ce que ca dit a Postgres:
 - `Port` => ecoute sur tel port de cette machine.
 - `User` => connecte toi en tant que ...
 - `database` => ouvre cette database 
+
+
+## Commandes :
+
+- `\dt` : lis toutes les tables de la base (*describe tables*)
+- `\d nom_table` : decrire table
+-`\l` : liste des bases de donnes 
+-`\c nom_db` : changer de base de donnes
+-`\du` : liste des utilisateurs postgresql
+
+---
+-`\x` : mode etendu pour mieux voir les colonnes
+
+**Quitter** = `\q`
+
+--- 
+#### requetes : avce du SQL pure !
+
+---
+
