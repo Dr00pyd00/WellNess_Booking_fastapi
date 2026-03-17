@@ -6,15 +6,17 @@ from sqlalchemy import func, select
 
 from app.core.exceptions import item_already_exist_field_error_msg, item_not_found_error_msg
 from app.core.models_mixins.mixin_status import StatusEnum
-from app.core.security.pw_hashing import hash_pw
-from app.users.exceptions import non_admin_user_try_delete_other_user_error_msg, try_soft_delete_last_admin_error_msg, user_already_soft_deleted_error_msg
+from app.core.security.pw_hashing import hash_pw, verify_pw
+from app.users.exceptions import non_admin_user_try_delete_other_user_error_msg, try_soft_delete_last_admin_error_msg, user_already_soft_deleted_error_msg, user_try_patch_other_user_error_msg, user_try_update_pw_but_old_wrong_error_msg
 from app.users.models import User, UserRoleEnum
-from app.users.schemas import UserCreationFormSchema
+from app.users.schemas import UserCreationFormSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
 
 
 # Functions ==================== #
 async def get_user_by_id_or_404(user_id:int, db: AsyncSession)->User:
     """try find user if not exist raise HTTPException 404 NOT FOUND
+
+
     Args:
         user_id (int): user id to find
 
@@ -117,6 +119,50 @@ async def create_user_service(
 # ==================== PUT ===============================#
 
 # ==================== PATCH =============================#
+
+# UPDATE PROFILE : NOT PASSWORD
+async def update_user_profile_service(
+        current_user: User,
+        new_user_data: UserUpdateProfileFormSchema,
+        db: AsyncSession
+)->User:
+    
+    user = await get_user_by_id_or_404(user_id=current_user.id, db=db)
+
+    new_user_data_dict = new_user_data.model_dump(exclude_none=True)
+    for k,v in new_user_data_dict.items():
+        setattr(user,k,v)
+
+    await db.commit()
+    await db.refresh(user)
+
+    return user
+
+# UPDATE PROFILE PASSWORD ONLY WITH VERIF
+async def update_user_password_service(
+        current_user: User,
+        new_user_pw_data: UserUpdatePasswordFormSchema,
+        db: AsyncSession
+)->User:
+    
+    user = await get_user_by_id_or_404(user_id=current_user.id, db=db)
+
+    # check old pw :
+    old_pw_good = verify_pw(new_user_pw_data.old_password, user.password)
+    if not old_pw_good:
+        user_try_update_pw_but_old_wrong_error_msg(user_id=user.id)
+    
+    new_pw = hash_pw(new_user_pw_data.new_password)
+    setattr(user,"password", new_pw)
+
+    await db.commit()
+    await db.refresh(user)
+
+    return user
+ 
+
+
+
 
 # ==================== DELETE ============================#
 
