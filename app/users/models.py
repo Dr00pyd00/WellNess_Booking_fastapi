@@ -71,7 +71,7 @@ class User(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
     role = Column(
         sqlEnum(UserRoleEnum, name="user_role_enum"),
         nullable=False,
-        server_default=UserRoleEnum.PATIENT,
+        server_default="PATIENT",
         default=UserRoleEnum.PATIENT
     )
 

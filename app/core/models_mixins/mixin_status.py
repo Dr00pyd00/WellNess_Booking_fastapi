@@ -1,4 +1,4 @@
-import enum as PyEnum
+from enum import Enum as PyEnum
 
 from sqlalchemy import Column, Enum
 
@@ -25,9 +25,9 @@ class StatusMixin():
     """
 
     status = Column(
-        Enum,
+        Enum(StatusEnum, name="status_enum"),
         nullable=False,
-        server_default=StatusEnum.ACTIVE,
+        server_default="ACTIVE",
         default=StatusEnum.ACTIVE,
 
     )
