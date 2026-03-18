@@ -5,4 +5,7 @@ from app.users.models import UserRoleEnum
 
 class TokenDataForCreationSchema(BaseModel):
     sub: str
-    user_role: UserRoleEnum
+
+
+class VerifyTokenOutPutDataSchema(BaseModel):
+    user_id: int

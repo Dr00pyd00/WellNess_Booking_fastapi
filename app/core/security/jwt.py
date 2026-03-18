@@ -2,8 +2,11 @@ from datetime import datetime, timezone, timedelta
 
 from jose import JWTError, jwt
 
+import app
 from app.core.config import app_settings
-from app.core.security.schemas import TokenDataForCreationSchema
+from app.core.security.execptions import invalid_token_payload
+from app.core.security.schemas import TokenDataForCreationSchema, VerifyTokenOutPutDataSchema
+from app.users.models import UserRoleEnum
 
 
 # Un token contient des data :
@@ -24,7 +27,6 @@ def create_access_token(
         token_data (TokenDataForCreationSchema): 
         
             - sub (str) convention.
-            - user_role (UserRoleEnum) 
 
         expiration_time_delta_mins (timedelta, optional): perso time who want setup. Defaults to None.
 
@@ -32,7 +34,6 @@ def create_access_token(
         str: a JWT encoded with :
 
         - sub (str)
-        - user_role (UserRoleEnum)
         - iat (datetime) issued_at
         - exp (datetime) expiration at
     """
@@ -47,7 +48,6 @@ def create_access_token(
 
     to_encode = {
         "sub": token_data.sub,
-        "user_role": token_data.user_role,
         "iat": now,
         "exp": exp_t,
     }
@@ -60,6 +60,36 @@ def create_access_token(
 
     return encoded_token
 
+
+
+def verify_jwt_token(token: str)-> VerifyTokenOutPutDataSchema:
+    """check if token is valid.
+
+    Args:
+        token (str): jwt Token 
+
+    Returns:
+        VerifyTokenOutPutDataSchema:
+
+        - user_id (int)
+
+    """
+
+    try:
+        token_payload = jwt.decode(
+            token=token,
+            key=app_settings.secret_key,
+            algorithms=[app_settings.algorithm]
+        )
+
+        user_id: str | None = token_payload.get("sub")
+        if user_id is None :
+            invalid_token_payload()
+
+        return VerifyTokenOutPutDataSchema(user_id=int(user_id))
+
+    except JWTError:
+        invalid_token_payload()
     
     
     
@@ -68,5 +98,3 @@ def create_access_token(
 
 
 
-
-# create token with data.
