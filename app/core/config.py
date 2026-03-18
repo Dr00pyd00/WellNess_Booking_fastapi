@@ -14,6 +14,12 @@ class Settings(BaseSettings):
     postgres_port: int 
     postgres_host: str
 
+    # jwt:
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+    refresh_token_expire_minutes: int
+
 
     @property
     def db_url(self):
