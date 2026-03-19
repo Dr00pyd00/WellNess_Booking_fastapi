@@ -63,7 +63,10 @@ class UserCreationFormSchema(BaseModel):
         description="Password <string>: 5 to 150 chars."
     )
 
-    email: Optional[EmailStr] = None
+    email: EmailStr = Field(
+        ...,
+        description="user email for communicate patient/practitioner/admin."
+    )
 
     birth: Optional[date] = None
 
