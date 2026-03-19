@@ -99,11 +99,11 @@ async def create_user_service(
         db: AsyncSession
 )->User:
     
-    # unique email:
-    result = await db.execute(select(User).where(User.email ==user_data.email))
+    # unique username:
+    result = await db.execute(select(User).where(User.username ==user_data.email))
     existing_user = result.scalar_one_or_none() # equivalent de "first()"
     if existing_user:
-        item_already_exist_field_error_msg("User", "email")
+        item_already_exist_field_error_msg("User", "username")
 
     # hash pw:
     user_data_dict = user_data.model_dump()
