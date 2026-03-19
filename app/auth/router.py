@@ -31,7 +31,7 @@ router = APIRouter(
 @router.post(
     "/login",
     status_code=status.HTTP_200_OK,
-    response_model=BearerTokenSchema
+    response_model=BearerTokenSchema,
              )
 async def login(
     user_credentials: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -39,6 +39,9 @@ async def login(
 )->BearerTokenSchema:
     
     return await login_service(user_credentials=user_credentials, db=db)
+
+
+
 # ==================== PUT ===============================#
 
 # ==================== PATCH =============================#
