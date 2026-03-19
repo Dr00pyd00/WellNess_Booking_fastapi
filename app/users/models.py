@@ -53,7 +53,7 @@ class User(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
 
     email = Column(
         String,
-        nullable=False,
+        nullable=True,
         unique=True
     )
 
