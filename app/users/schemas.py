@@ -185,3 +185,14 @@ class UserUpdateProfileFormSchema(BaseModel):
         return input
 
 
+
+# ================================================= #
+# ============= FILTERS =========================== # 
+# ================================================= #
+
+class UserFilterRoleStatusDeletedSchema(BaseModel):
+    role: UserRoleEnum | None = None
+    status: StatusEnum | None = None 
+    see_deleted: bool = False
+
+

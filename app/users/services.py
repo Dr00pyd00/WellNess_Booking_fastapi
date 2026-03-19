@@ -9,7 +9,7 @@ from app.core.models_mixins.mixin_status import StatusEnum
 from app.core.security.pw_hashing import hash_pw, verify_pw
 from app.users.exceptions import non_admin_user_try_delete_other_user_error_msg, try_soft_delete_last_admin_error_msg, user_already_soft_deleted_error_msg, user_try_patch_other_user_error_msg, user_try_update_pw_but_old_wrong_error_msg
 from app.users.models import User, UserRoleEnum
-from app.users.schemas import UserCreationFormSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
+from app.users.schemas import UserCreationFormSchema, UserFilterRoleStatusDeletedSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
 
 
 # Functions =========================================================================================================== #
@@ -55,8 +55,6 @@ async def get_user_by_username_or_404(user_username: str, db: AsyncSession)->Use
 
     return user
 
-
-
 async def get_user_by_email_or_404(user_email: str, db: AsyncSession)->User:
     """try find user, if not found raise HTTPException 404 NOT FOUND
 
@@ -92,7 +90,8 @@ async def get_user_by_email_or_404(user_email: str, db: AsyncSession)->User:
 async def get_all_users_service(
         db: AsyncSession,
         skip: int,
-        limit: int
+        limit: int,
+        users_filters: UserFilterRoleStatusDeletedSchema
 )->List[User]:
     """get list of users 
 
@@ -105,8 +104,20 @@ async def get_all_users_service(
         List[User]: User list
     """
 
-    # inclus pagination
-    result = await db.execute(select(User).offset(skip).limit(limit))
+    # base:
+    # inclure pagination
+    query = select(User).offset(skip).limit(limit)
+
+
+    # inclure filters
+    if users_filters.role:
+        query = query.where(User.role == users_filters.role)
+    if users_filters.status:
+        query = query.where(User.status == users_filters.status)
+    if users_filters.see_deleted is False:
+        query = query.where(User.deleted_at == None)
+
+    result =  await db.execute(query)
 
 
     users_list = result.scalars().all()
