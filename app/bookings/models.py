@@ -37,7 +37,7 @@ class Booking(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    patient = relationship("User", back_populates="owner_bookings")
+    user_profile = relationship("User", back_populates="owner_bookings")
 
     # availability 
     availability_id = Column(
