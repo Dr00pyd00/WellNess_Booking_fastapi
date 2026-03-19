@@ -9,3 +9,8 @@ class TokenDataForCreationSchema(BaseModel):
 
 class VerifyTokenOutPutDataSchema(BaseModel):
     user_id: int
+
+
+class BearerTokenSchema(BaseModel):
+    access_token: str
+    token_type: str = "Bearer"

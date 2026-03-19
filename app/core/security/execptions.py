@@ -10,3 +10,10 @@ def invalid_token_payload_error_msg():
         detail="Invalid Token Credentials."
     )
 
+
+def invalid_credentials_for_token_error_msg():
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid JWT Credentials.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )

@@ -12,7 +12,7 @@ from app.users.models import User, UserRoleEnum
 from app.users.schemas import UserCreationFormSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
 
 
-# Functions ==================== #
+# Functions =========================================================================================================== #
 async def get_user_by_id_or_404(user_id:int, db: AsyncSession)->User:
     """try find user if not exist raise HTTPException 404 NOT FOUND
 
@@ -32,6 +32,53 @@ async def get_user_by_id_or_404(user_id:int, db: AsyncSession)->User:
         item_not_found_error_msg(item_name="User")
     
     return user
+
+async def get_user_by_username_or_404(user_username: str, db: AsyncSession)->User:
+    """try find user, if not found raise HTTPException 404 NOT FOUND
+
+    Args:
+        user_username(str): user username to find
+        db (AsyncSession): database session
+
+    Raises:
+        HTTPException: 404 NOT FOUND
+
+    Returns:
+        User: User object
+    """
+
+    result = await db.execute(select(User).where(User.username == user_username ))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        item_not_found_error_msg(item_name="User")
+
+    return user
+
+
+
+async def get_user_by_email_or_404(user_email: str, db: AsyncSession)->User:
+    """try find user, if not found raise HTTPException 404 NOT FOUND
+
+    Args:
+        user_email(str): user email to find
+        db (AsyncSession): database session
+
+    Raises:
+        HTTPException: 404 NOT FOUND
+
+    Returns:
+        User: User object
+    """
+
+    result = await db.execute(select(User).where(User.email == user_email))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        item_not_found_error_msg(item_name="User")
+
+    return user
+
 
 
 
