@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import func, select
+from sqlalchemy import func, select, or_
 
 from app.core.exceptions import item_already_exist_field_error_msg, item_not_found_error_msg
 from app.core.models_mixins.mixin_status import StatusEnum
@@ -99,11 +99,33 @@ async def create_user_service(
         db: AsyncSession
 )->User:
     
-    # unique username:
-    result = await db.execute(select(User).where(User.username ==user_data.email))
-    existing_user = result.scalar_one_or_none() # equivalent de "first()"
+    # # unique username:
+    # result = await db.execute(select(User).where(User.username ==user_data.username))
+    # existing_user = result.scalar_one_or_none() # equivalent de "first()"
+    # if existing_user:
+    #     item_already_exist_field_error_msg("User", "username")
+    
+    # # unique email if email not none:
+    # result2 = await db.execute(select(User).where(User.email == user_data.email))
+    # existing_user_2 = result2.scalar_one_or_none()
+    # if existing_user_2:
+    #     item_already_exist_field_error_msg("User", "email")
+
+    # 2 en 1 pro:
+    conditions = [User.username ==user_data.username]
+    if user_data.email is not None:
+        conditions.append(User.email ==user_data.email)
+    result = await db.execute(select(User).where(or_(*conditions)))
+    existing_user = result.scalar_one_or_none()
+
+    # gestion errreurs:
     if existing_user:
-        item_already_exist_field_error_msg("User", "username")
+        if existing_user.username == user_data.username:
+            item_already_exist_field_error_msg("User", "username")
+        if existing_user.email == user_data.email:
+            item_already_exist_field_error_msg("User", "email")   
+        
+            
 
     # hash pw:
     user_data_dict = user_data.model_dump()
