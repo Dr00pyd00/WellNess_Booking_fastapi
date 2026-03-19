@@ -83,7 +83,7 @@ class UserCreationFormSchema(BaseModel):
     @classmethod
     def verify_passowrd_complexity(cls, input:str)->str:
         if not any(char.isdigit() for char in input):
-            raise ValueError("<passwor> must containt at least ONE digit.")
+            raise ValueError("<password> must containt at least ONE digit.")
         if not any(char.isalpha() for char in input):
             raise ValueError("<password> must contain at least ONE alpha char.")
         return input
