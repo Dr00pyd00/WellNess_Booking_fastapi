@@ -209,12 +209,14 @@ async def update_user_profile_service(
     
     user = await get_user_by_id_or_404(user_id=current_user.id, db=db)
 
-    new_user_data_dict = new_user_data.model_dump(exclude_none=True)
-    for k,v in new_user_data_dict.items():
-        setattr(user,k,v)
+    if new_user_data:
 
-    await db.commit()
-    await db.refresh(user)
+        new_user_data_dict = new_user_data.model_dump(exclude_none=True)
+        for k,v in new_user_data_dict.items():
+            setattr(user,k,v)
+
+        await db.commit()
+        await db.refresh(user)
 
     return user
 
@@ -245,15 +247,51 @@ async def update_user_password_service(
 
 
 # ==================== DELETE ============================#
+   
+# delete current_user account
+async def delete_current_user_service(
+        current_user: User,
+        db: AsyncSession,
+)->User:
+    
+    user_to_delete = await get_user_by_id_or_404(user_id=current_user.id, db=db)
 
-# Delete user 
-async def soft_delete_user_service(
+    # protect last admin:
+    res = await db.execute(select(func.count(User.id)).where(User.deleted_at == None, User.role == UserRoleEnum.ADMIN))
+    admin_count = res.scalar()
+    if user_to_delete.role == UserRoleEnum.ADMIN and admin_count == 1:
+        try_soft_delete_last_admin_error_msg()
+    
+
+    user_to_delete.soft_delete()
+    await db.commit()
+    await db.refresh(user_to_delete)
+    return user_to_delete
+
+
+
+# ----------------------------------- # 
+# --------- ADMIN ONLY -------------- #
+# ----------------------------------- #
+
+# ==================== GET ===============================#
+
+# ==================== POST ==============================#
+
+# ==================== PUT ===============================#
+
+# ==================== PATCH =============================#
+
+# ==================== DELETE ============================#
+
+# Delete user  by ID as ADMIN
+async def soft_delete_user_by_id_as_admin_service(
         current_user: User,
         user_id: int, # user id to delete
         db: AsyncSession,
 )->User:
-    """soft delete a user: 
-    - user can't delete other user account
+    """soft delete a user as admin: 
+   
     - ADMIN can delete other user account
     - ADMIN cant delete the last admin account
 
@@ -275,7 +313,6 @@ async def soft_delete_user_service(
     # protect last admin acc:
     res = await db.execute(select(func.count(User.id)).where(User.deleted_at == None, User.role == UserRoleEnum.ADMIN))
     admin_count = res.scalar()
-
     if user_to_soft_deleted.role == UserRoleEnum.ADMIN and admin_count == 1:
         try_soft_delete_last_admin_error_msg()
 
@@ -283,7 +320,8 @@ async def soft_delete_user_service(
     if current_user.role != UserRoleEnum.ADMIN and user_id != current_user.id:
         non_admin_user_try_delete_other_user_error_msg()
 
-    user_to_soft_deleted.deleted_at = datetime.now(timezone.utc)
+    user_to_soft_deleted.soft_delete()
+
     await db.commit()
     await db.refresh(user_to_soft_deleted)
 
@@ -291,26 +329,7 @@ async def soft_delete_user_service(
 
     
 
-    
-
-
-
-
-
-# ----------------------------------- # 
-# --------- ADMIN ONLY -------------- #
-# ----------------------------------- #
-
-# ==================== GET ===============================#
-
-# ==================== POST ==============================#
-
-# ==================== PUT ===============================#
-
-# ==================== PATCH =============================#
-
-# ==================== DELETE ============================#
-
+ 
 
 # ----------------------------------- # 
 # --------- PRACTITIONER ONLY ------- #

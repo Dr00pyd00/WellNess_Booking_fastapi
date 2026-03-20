@@ -1,6 +1,6 @@
 import re
 from typing import Optional
-from datetime import date
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta  # prend en compteannées bisectiles
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -25,6 +25,8 @@ class UserDataFromDbSchema(BaseModel):
     phone_number: str = None
     birth: date | None = None 
     role: UserRoleEnum 
+    created_at: datetime
+    deleted_at: datetime | None 
 
 # ALL DATA NO SECURITY FROM DB:
 class UserFullDataFromDbSchema(UserDataFromDbSchema):
@@ -144,14 +146,14 @@ class UserUpdatePasswordFormSchema(BaseModel):
 # UPDATE PROFILE =========================
 class UserUpdateProfileFormSchema(BaseModel):
 
-    new_username: Optional[str] = Field(
+    username: Optional[str] = Field(
         min_length=3,
         max_length=50,
         description="Username <string>: 3 to 50 chars.",
         default=None
     ) 
 
-    new_name: Optional[str] = Field(
+    name: Optional[str] = Field(
         min_length=2,
         max_length=80,
         description="Name <string>: 2 to 80 chars.",
@@ -159,15 +161,15 @@ class UserUpdateProfileFormSchema(BaseModel):
 
     ) 
 
-    new_email: Optional[EmailStr] = None
+    email: Optional[EmailStr] = None
 
-    new_birth: Optional[date] = None
+    birth: Optional[date] = None
 
-    new_phone_number: Optional[str] = None
+    phone_number: Optional[str] = None
 
     # validations:
 
-    @field_validator("new_username")
+    @field_validator("username")
     @classmethod
     def verify_username_is_alphanumeric(cls, input:str)->str:
         if re.match(r'^[a-zA-Z0-9_-]+$', input) is None:
@@ -175,7 +177,7 @@ class UserUpdateProfileFormSchema(BaseModel):
         return input
 
 
-    @field_validator("new_birth")
+    @field_validator("birth")
     @classmethod
     def verify_age_possible(cls, input):
         if input >= date.today():
