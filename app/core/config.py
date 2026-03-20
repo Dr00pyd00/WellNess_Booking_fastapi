@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int
     refresh_token_expire_minutes: int
 
+    # admin_creation
+    admin_username: str
+    admin_password: str
+    admin_email: str
+
 
     @property
     def db_url(self):

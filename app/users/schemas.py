@@ -22,7 +22,7 @@ class UserDataFromDbSchema(BaseModel):
     id: int
     username: str
     name: str | None = None
-    phone_number: str = None
+    phone_number: str | None = None
     birth: date | None = None 
     role: UserRoleEnum 
     created_at: datetime
