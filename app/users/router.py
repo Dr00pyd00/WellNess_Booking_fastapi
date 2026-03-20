@@ -1,15 +1,15 @@
 from calendar import c
 from typing import Annotated, List
 
-from fastapi import APIRouter, Body, Depends, status, Query
+from fastapi import APIRouter, Body, Depends, Path, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies.database import get_db
-from app.dependencies.jwt import get_current_user
-from app.users.schemas import UserCreationFormSchema, UserDataFromDbSchema, UserFilterRoleStatusDeletedSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
-from app.users.services import create_user_service, delete_current_user_service, get_all_users_service, update_user_password_service, update_user_profile_service
+from app.dependencies.jwt import get_current_user, required_roles
+from app.users.schemas import UserCreationFormSchema, UserDataFromDbSchema, UserFilterRoleStatusDeletedSchema, UserSwapRoleFormSchema, UserSwapStatusFormSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
+from app.users.services import create_user_service, delete_current_user_service, get_all_users_service, swap_user_role_by_admin_service, swap_user_status_by_admin_service, update_user_password_service, update_user_profile_service
 from app.users.users_filter import get_user_filters_role_status_softdeleted
-from app.users.models import User
+from app.users.models import User, UserRoleEnum
 
 
 router = APIRouter(
@@ -146,6 +146,48 @@ async def delete_user_by_id_service(
 # ==================== PUT ===============================#
 
 # ==================== PATCH =============================#
+
+# SWAP USER ROLE 
+@router.patch(
+    "/change_role/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=UserDataFromDbSchema
+    )
+async def admin_change_user_role(
+    current_user: Annotated[User, Depends(required_roles(UserRoleEnum.ADMIN))],
+    user_id: Annotated[int, Path(..., description="user ID you want to swap role.")],
+    new_role: UserSwapRoleFormSchema,
+    db: Annotated[AsyncSession, Depends(get_db)],
+)->UserDataFromDbSchema:
+    
+    return await swap_user_role_by_admin_service(
+        admin_id=current_user.id,
+        user_to_swap_id=user_id,
+        new_role=new_role.new_role,
+        db=db
+    )
+
+
+# SWAP USER STATUS 
+@router.patch(
+    "/change_status/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=UserDataFromDbSchema
+    )
+async def admin_change_user_status(
+    current_user: Annotated[User, Depends(required_roles(UserRoleEnum.ADMIN))],
+    user_id: Annotated[int, Path(..., description="user ID you want to swap role.")],
+    new_status: UserSwapStatusFormSchema,  
+    db: Annotated[AsyncSession, Depends(get_db)],
+)->UserDataFromDbSchema:
+    
+    return await swap_user_status_by_admin_service(
+        admin_id=current_user.id,
+        user_to_swap_id=user_id,
+        new_status=new_status.new_status,
+        db=db
+    )
+
 
 # ==================== DELETE ============================#
 

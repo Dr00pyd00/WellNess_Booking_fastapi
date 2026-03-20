@@ -45,3 +45,24 @@ def user_dont_have_required_role_error_msg():
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="user dont have required role."
     )
+
+
+def admin_cant_self_change_role_error_msg():
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="admin can't change his own role"
+    )
+
+
+def admin_cant_self_change_status_error_msg():
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="admin can't change his own status."
+    )
+
+
+def admin_cant_change_status_or_role_for_other_admin_error_msg():
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="admin can't modify status/role of another admin."
+    )

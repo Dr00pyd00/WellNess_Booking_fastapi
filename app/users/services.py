@@ -7,7 +7,7 @@ from sqlalchemy import func, select, or_
 from app.core.exceptions import item_already_exist_field_error_msg, item_not_found_error_msg
 from app.core.models_mixins.mixin_status import StatusEnum
 from app.core.security.pw_hashing import hash_pw, verify_pw
-from app.users.exceptions import non_admin_user_try_delete_other_user_error_msg, try_soft_delete_last_admin_error_msg, user_already_soft_deleted_error_msg, user_try_patch_other_user_error_msg, user_try_update_pw_but_old_wrong_error_msg
+from app.users.exceptions import admin_cant_change_status_or_role_for_other_admin_error_msg, admin_cant_self_change_role_error_msg, admin_cant_self_change_status_error_msg, non_admin_user_try_delete_other_user_error_msg, try_soft_delete_last_admin_error_msg, user_already_soft_deleted_error_msg, user_try_patch_other_user_error_msg, user_try_update_pw_but_old_wrong_error_msg
 from app.users.models import User, UserRoleEnum
 from app.users.schemas import UserCreationFormSchema, UserFilterRoleStatusDeletedSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
 
@@ -281,6 +281,50 @@ async def delete_current_user_service(
 # ==================== PUT ===============================#
 
 # ==================== PATCH =============================#
+
+# SWAP STATUS by ADMIN:
+async def swap_user_status_by_admin_service(
+        admin_id: int,
+        user_to_swap_id: int,
+        new_status: StatusEnum,
+        db: AsyncSession,
+)->User:
+    
+    if admin_id == user_to_swap_id:
+        admin_cant_self_change_status_error_msg()
+    
+    user = await get_user_by_id_or_404(user_id=user_to_swap_id, db=db)
+
+    if user.role == UserRoleEnum.ADMIN:
+        admin_cant_change_status_or_role_for_other_admin_error_msg()
+
+    user.status = new_status
+    await db.commit()
+    await db.refresh(user)
+    return user
+ 
+ 
+# SWAP ROLE by ADMIN:
+async def swap_user_role_by_admin_service(
+        admin_id: int,
+        user_to_swap_id: int,
+        new_role: UserRoleEnum,
+        db: AsyncSession,
+)->User:
+    
+    if admin_id == user_to_swap_id:
+        admin_cant_self_change_role_error_msg()
+    
+    user = await get_user_by_id_or_404(user_id=user_to_swap_id, db=db)
+
+    if user.role == UserRoleEnum.ADMIN:
+        admin_cant_change_status_or_role_for_other_admin_error_msg()
+
+    user.role = new_role
+    await db.commit()
+    await db.refresh(user)
+    return user
+    
 
 # ==================== DELETE ============================#
 
