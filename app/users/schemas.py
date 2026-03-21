@@ -25,6 +25,7 @@ class UserDataFromDbSchema(BaseModel):
     phone_number: str | None = None
     birth: date | None = None 
     role: UserRoleEnum 
+    status: StatusEnum
     created_at: datetime
     deleted_at: datetime | None 
 
