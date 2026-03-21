@@ -7,7 +7,7 @@ from sqlalchemy import func, select, or_
 from app.core.exceptions import item_already_exist_field_error_msg, item_not_found_error_msg
 from app.core.models_mixins.mixin_status import StatusEnum
 from app.core.security.pw_hashing import hash_pw, verify_pw
-from app.users.exceptions import admin_cant_change_status_or_role_for_other_admin_error_msg, admin_cant_self_change_role_error_msg, admin_cant_self_change_status_error_msg, non_admin_user_try_delete_other_user_error_msg, try_soft_delete_last_admin_error_msg, user_already_soft_deleted_error_msg, user_try_patch_other_user_error_msg, user_try_update_pw_but_old_wrong_error_msg
+from app.users.exceptions import admin_cant_change_status_or_role_for_other_admin_error_msg, admin_cant_self_change_role_error_msg, admin_cant_self_change_status_error_msg, non_admin_user_try_delete_other_user_error_msg, try_soft_delete_last_admin_error_msg, user_already_soft_deleted_error_msg, user_is_not_soft_deleted, user_try_patch_other_user_error_msg, user_try_update_pw_but_old_wrong_error_msg
 from app.users.models import User, UserRoleEnum
 from app.users.schemas import UserCreationFormSchema, UserFilterRoleStatusDeletedSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
 
@@ -156,6 +156,15 @@ async def create_user_service(
         user_data: UserCreationFormSchema,
         db: AsyncSession
 )->User:
+    """create a new user 
+
+    Args:
+        user_data (UserCreationFormSchema):  data for new user creation
+        db (AsyncSession): databse (async)
+
+    Returns:
+        User: user created
+    """
     
     # # unique username:
     # result = await db.execute(select(User).where(User.username ==user_data.username))
@@ -206,6 +215,16 @@ async def update_user_profile_service(
         new_user_data: UserUpdateProfileFormSchema,
         db: AsyncSession
 )->User:
+    """update a user profile
+
+    Args:
+        current_user (User): current user
+        new_user_data (UserUpdateProfileFormSchema): form with all new data for update
+        db (AsyncSession): database (async)
+
+    Returns:
+        User: updated user
+    """
     
     user = await get_user_by_id_or_404(user_id=current_user.id, db=db)
 
@@ -241,6 +260,8 @@ async def update_user_password_service(
     await db.refresh(user)
 
     return user
+
+
  
 
 
@@ -253,6 +274,15 @@ async def delete_current_user_service(
         current_user: User,
         db: AsyncSession,
 )->User:
+    """take current user and delete it.
+
+    Args:
+        current_user (User): current user want want to delete.
+        db (AsyncSession): database (async)
+
+    Returns:
+        User: updated user soft deleted.
+    """
     
     user_to_delete = await get_user_by_id_or_404(user_id=current_user.id, db=db)
 
@@ -282,6 +312,53 @@ async def delete_current_user_service(
 
 # ==================== PATCH =============================#
 
+
+# RESTTORE A SOFT DELETED USER AS ADMIN
+async def restore_user_soft_deleted_as_admin_service(
+        current_user: User,
+        user_id: int, # user id to restore
+        db: AsyncSession,
+)->User:
+    """take user ID and restore of softdelted
+
+    Args:
+        current_user (User): the admin user
+        user_id (int): user ID you want to restore
+        db (AsyncSession): database (async)
+
+    Returns:
+        User:  restored user data
+    """
+    user_to_restore = await get_user_by_id_or_404(user_id=user_id, db=db)
+
+    if user_to_restore is None:
+        item_not_found_error_msg(item_name="user")
+
+    if user_to_restore.deleted_at is not None:
+        user_is_not_soft_deleted()
+
+    if current_user.id == user_id:
+        pass 
+        # fill if you want forbid admin to cant restore his own account
+
+    if user_to_restore.role == UserRoleEnum.ADMIN:
+        pass
+        # fill if you want restrict admin for admins.
+
+    user_to_restore.restore_from_soft_delete()
+    await db.commi()
+    await db.refresh(user_to_restore)
+
+    return user_to_restore
+
+
+    
+
+    
+
+
+
+
 # SWAP STATUS by ADMIN:
 async def swap_user_status_by_admin_service(
         admin_id: int,
@@ -289,6 +366,18 @@ async def swap_user_status_by_admin_service(
         new_status: StatusEnum,
         db: AsyncSession,
 )->User:
+    """change user status as admin
+
+    Args:
+        admin_id (int): the current_user ADMIN ID
+        user_to_swap_id (int): user you want to swap ID
+        new_status (StatusEnum): status you want to setup
+        db (AsyncSession): databse (async)
+
+    Returns:
+        User: updated user with new status.
+    """
+    
     
     if admin_id == user_to_swap_id:
         admin_cant_self_change_status_error_msg()
@@ -311,6 +400,17 @@ async def swap_user_role_by_admin_service(
         new_role: UserRoleEnum,
         db: AsyncSession,
 )->User:
+    """change user role as admin
+
+    Args:
+        admin_id (int): the current_user ADMIN ID
+        user_to_swap_id (int): user you want to swap ID
+        new_role (UserRoleEnum): role you want to setup
+        db (AsyncSession): databse (async)
+
+    Returns:
+        User: updated user with new role.
+    """
     
     if admin_id == user_to_swap_id:
         admin_cant_self_change_role_error_msg()

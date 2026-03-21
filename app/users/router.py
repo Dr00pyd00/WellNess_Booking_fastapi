@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies.database import get_db
 from app.dependencies.jwt import get_current_user, required_roles
+from app.users.exceptions import user_already_soft_deleted_error_msg
 from app.users.schemas import UserCreationFormSchema, UserDataFromDbSchema, UserFilterRoleStatusDeletedSchema, UserSwapRoleFormSchema, UserSwapStatusFormSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
-from app.users.services import create_user_service, delete_current_user_service, get_all_users_service, soft_delete_user_by_id_as_admin_service, swap_user_role_by_admin_service, swap_user_status_by_admin_service, update_user_password_service, update_user_profile_service
+from app.users.services import create_user_service, delete_current_user_service, get_all_users_service, restore_user_soft_deleted_as_admin_service, soft_delete_user_by_id_as_admin_service, swap_user_role_by_admin_service, swap_user_status_by_admin_service, update_user_password_service, update_user_profile_service
 from app.users.users_filter import get_user_filters_role_status_softdeleted
 from app.users.models import User, UserRoleEnum
 
@@ -147,9 +148,28 @@ async def delete_user_by_id_service(
 
 # ==================== PATCH =============================#
 
+
+# RESTORE USER SOFT DELETED
+@router.patch(
+        "/{user_id}/restore",
+        status_code=status.HTTP_200_OK,
+        response_model=UserDataFromDbSchema,
+)
+async def admin_restore_user(
+    current_user: Annotated[User, Depends(UserRoleEnum.ADMIN)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    user_id: Annotated[int, Path(..., description="user ID to delete (as admin).")]
+)->User:
+    
+    return await restore_user_soft_deleted_as_admin_service(
+        current_user=current_user,
+        user_id=user_id,
+        db=db
+    )
+
 # SWAP USER ROLE 
 @router.patch(
-    "/change_role/{user_id}",
+    "/{user_id}/change_role",
     status_code=status.HTTP_200_OK,
     response_model=UserDataFromDbSchema
     )
@@ -170,7 +190,7 @@ async def admin_change_user_role(
 
 # SWAP USER STATUS 
 @router.patch(
-    "/change_status/{user_id}",
+    "/{user_id}/change_status",
     status_code=status.HTTP_200_OK,
     response_model=UserDataFromDbSchema
     )
@@ -198,7 +218,7 @@ async def admin_change_user_status(
     response_model=UserDataFromDbSchema,
     )
 async def admin_delete_other_user(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(required_roles(UserRoleEnum.ADMIN))],
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[int, Path(..., description="user ID to delete (as admin).")]
 )->UserDataFromDbSchema:

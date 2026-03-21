@@ -20,6 +20,12 @@ def current_user_is_soft_deleted_error_msg(id:int):
         detail=f"user ID:{id} is soft-deleted."
     )
 
+def user_is_not_soft_deleted():
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="user is not soft deleted."
+    )
+
 
 def user_already_soft_deleted_error_msg(user_id:int):
     raise HTTPException(
