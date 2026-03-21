@@ -156,7 +156,7 @@ async def delete_user_by_id_service(
         response_model=UserDataFromDbSchema,
 )
 async def admin_restore_user(
-    current_user: Annotated[User, Depends(UserRoleEnum.ADMIN)],
+    current_user: Annotated[User, Depends(required_roles(UserRoleEnum.ADMIN))],
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[int, Path(..., description="user ID to delete (as admin).")]
 )->User:

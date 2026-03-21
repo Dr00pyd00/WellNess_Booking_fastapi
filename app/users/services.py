@@ -334,7 +334,7 @@ async def restore_user_soft_deleted_as_admin_service(
     if user_to_restore is None:
         item_not_found_error_msg(item_name="user")
 
-    if user_to_restore.deleted_at is not None:
+    if user_to_restore.deleted_at is None:
         user_is_not_soft_deleted()
 
     if current_user.id == user_id:
@@ -346,7 +346,7 @@ async def restore_user_soft_deleted_as_admin_service(
         # fill if you want restrict admin for admins.
 
     user_to_restore.restore_from_soft_delete()
-    await db.commi()
+    await db.commit()
     await db.refresh(user_to_restore)
 
     return user_to_restore
