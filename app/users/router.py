@@ -1,12 +1,13 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Body, Depends, Path, status, Query
+from sqlalchemy import desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies.database import get_db
 from app.dependencies.jwt import get_current_user, required_roles
 from app.users.schemas import UserCreationFormSchema, UserDataFromDbSchema, UserFilterRoleStatusDeletedSchema, UserSwapRoleFormSchema, UserSwapStatusFormSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
-from app.users.services import create_user_service, delete_current_user_service, get_all_users_service, swap_user_role_by_admin_service, swap_user_status_by_admin_service, update_user_password_service, update_user_profile_service
+from app.users.services import create_user_service, delete_current_user_service, get_all_users_service, soft_delete_user_by_id_as_admin_service, swap_user_role_by_admin_service, swap_user_status_by_admin_service, update_user_password_service, update_user_profile_service
 from app.users.users_filter import get_user_filters_role_status_softdeleted
 from app.users.models import User, UserRoleEnum
 
@@ -118,7 +119,7 @@ async def update_user_password(
 
 # SOFT DELETE CURRENT USER
 @router.delete(
-        "/me", 
+        "/me/delete_acc", 
         status_code=status.HTTP_200_OK,
         response_model=UserDataFromDbSchema,
                )
@@ -190,6 +191,23 @@ async def admin_change_user_status(
 
 # ==================== DELETE ============================#
 
+# DELETE OTHER USER AS ADMIN:
+@router.delete(
+    "/{user_id}/admin_delete",
+    status_code=status.HTTP_200_OK,
+    response_model=UserDataFromDbSchema,
+    )
+async def admin_delete_other_user(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    user_id: Annotated[int, Path(..., description="user ID to delete (as admin).")]
+)->UserDataFromDbSchema:
+    
+    return await soft_delete_user_by_id_as_admin_service(
+        current_user=current_user,
+        user_id=user_id,
+        db=db,
+    )
 
    # user_id: Annotated[int, Query(..., description="ID of user who want to delete.")],
 # ----------------------------------- # 
