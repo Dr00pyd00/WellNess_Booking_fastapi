@@ -7,6 +7,9 @@ from app.dependencies.database import get_db
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.config import app_settings
 
+# ===================================== #
+# ======== GLOBAL    ================== #
+# ===================================== #
 
 POSTGRES_URL_DB = app_settings.test_db_url
 
@@ -26,15 +29,28 @@ TestLocalSession = async_sessionmaker(
 async def db_session():
 
     # a l'appel de la db on creer les tables
+    # test_engine.begin() : ouvre une co a la DB,
+    # comme c'est async on met await
     async with test_engine.begin() as conn:
+        # on creer les table avec le traducteur run_sync
         await conn.run_sync(Base.metadata.create_all)
 
-
+    # ouvre une session de travail avec la DB,
     async with TestLocalSession() as db:
+        # yield met la fixture en pause , donne db puis quand fini: on continue
         yield db
-        # a la fin du gen, on delete toutes les tables
-        async with test_engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
+
+    # meme bloc que le premier:
+    # donne l'ordre de supprimer
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+    # ferme toutes les lignes
+    # chaque commandes precedentes a ouvrest une canals differents 
+    # on les fermes tous:
+    await test_engine.dispose()
+
+        
 
 
 # on creer un client ( un genre de postman maison):
@@ -60,3 +76,24 @@ async def client(db_session: AsyncSession):
 
     app.dependency_overrides.clear()
     
+
+
+
+# ===================================== #
+# ======== USERS PRESETS   ============ #
+# ===================================== #
+
+good_user_data = {
+    "username":"usernametest",
+    "password":"testpassword123",
+    "email":"test@test.com",
+    "phone":"123456789",
+    "birth":"2000-02-02",
+}
+
+# Creer 1 user automatiquement:
+@pytest.fixture
+async def create_user_test(client: AsyncClient):
+    response = client.post(url="users", json=good_user_data)
+
+    return response
