@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     admin_password: str
     admin_email: str
 
+    # test db
+    test_postgres_db: str
+
 
     @property
     def db_url(self):
@@ -35,6 +38,19 @@ class Settings(BaseSettings):
             f":{self.postgres_port}"
             f"/{self.postgres_db}"
         )
+
+
+    @property
+    def test_db_url(self):
+        return (
+            f"postgresql+asyncpg://{self.postgres_user}"
+            f":{self.postgres_password}"
+            f"@{self.postgres_host}"
+            f":{self.postgres_port}"
+            f"/{self.test_postgres_db}"
+        )
+
+
 
 
 
