@@ -97,3 +97,15 @@ async def create_user_response(client: AsyncClient):
     response = await client.post(url="/users/", json=good_user_data)
 
     return response
+
+# avoir la reponse login 
+@pytest.fixture
+async def get_created_user_token(client: AsyncClient, create_user_response):
+
+    login_response = await client.post(url="/login", data={"username":"usernametest",
+    "password":"testpassword123",
+ })
+
+    token = login_response.json()["access_token"]
+
+    return token
