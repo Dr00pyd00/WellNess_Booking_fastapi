@@ -87,13 +87,13 @@ good_user_data = {
     "username":"usernametest",
     "password":"testpassword123",
     "email":"test@test.com",
-    "phone":"123456789",
+    "phone_number":"123456789",
     "birth":"2000-02-02",
 }
 
 # Creer 1 user automatiquement:
 @pytest.fixture
-async def create_user_test(client: AsyncClient):
-    response = client.post(url="users", json=good_user_data)
+async def create_user_response(client: AsyncClient):
+    response = await client.post(url="/users/", json=good_user_data)
 
     return response
