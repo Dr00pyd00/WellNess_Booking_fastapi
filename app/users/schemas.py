@@ -23,6 +23,7 @@ class UserDataFromDbSchema(BaseModel):
     username: str
     name: str | None = None
     phone_number: str | None = None
+    email: EmailStr | None = None
     birth: date | None = None 
     role: UserRoleEnum 
     status: StatusEnum
