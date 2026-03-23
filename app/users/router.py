@@ -82,7 +82,7 @@ async def create_user(
 
 # UPDATE PROFILE : NOT THE PASSWORD:
 @router.patch(
-        "/update_profile",
+        "/me",
         status_code=status.HTTP_200_OK ,
         response_model=UserDataFromDbSchema,
         )
@@ -100,7 +100,7 @@ async def update_user_profile(
 
 # UPDATE CHANGE PASSWORD WITH VERIF:
 @router.patch(
-        "/update_password",
+        "/me/password",
         status_code=status.HTTP_200_OK,
         response_model=UserDataFromDbSchema,
 )
@@ -120,7 +120,7 @@ async def update_user_password(
 
 # SOFT DELETE CURRENT USER
 @router.delete(
-        "/me/delete_acc", 
+        "/me", 
         status_code=status.HTTP_200_OK,
         response_model=UserDataFromDbSchema,
                )
@@ -169,7 +169,7 @@ async def admin_restore_user(
 
 # SWAP USER ROLE 
 @router.patch(
-    "/{user_id}/change_role",
+    "/{user_id}/role",
     status_code=status.HTTP_200_OK,
     response_model=UserDataFromDbSchema
     )
@@ -190,7 +190,7 @@ async def admin_change_user_role(
 
 # SWAP USER STATUS 
 @router.patch(
-    "/{user_id}/change_status",
+    "/{user_id}/status",
     status_code=status.HTTP_200_OK,
     response_model=UserDataFromDbSchema
     )
@@ -213,7 +213,7 @@ async def admin_change_user_status(
 
 # DELETE OTHER USER AS ADMIN:
 @router.delete(
-    "/{user_id}/admin_delete",
+    "/{user_id}/",
     status_code=status.HTTP_200_OK,
     response_model=UserDataFromDbSchema,
     )
