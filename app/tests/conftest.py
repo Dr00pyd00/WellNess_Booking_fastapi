@@ -1,11 +1,14 @@
+from datetime import date
 import pytest
 from httpx import ASGITransport, AsyncClient
 
+from app.core.security.pw_hashing import hash_pw
 from app.main import app
 from app.core.database import Base
 from app.dependencies.database import get_db
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.config import app_settings
+from app.users.models import User, UserRoleEnum
 
 # ===================================== #
 # ======== GLOBAL    ================== #
@@ -109,3 +112,37 @@ async def get_created_user_token(client: AsyncClient, create_user_response):
     token = login_response.json()["access_token"]
 
     return token
+
+
+
+# avoir un admin:
+@pytest.fixture
+async def get_admin_user_token(client: AsyncClient, db_session: AsyncSession):
+
+    data ={
+            "username":"superusertest",
+            "password":"testpassword123",
+            "email":"supertest@test.com",
+            "phone_number":"123456789",
+            "birth":date(2000, 2, 2),
+            }
+     
+    admin_user = User(**data)
+    admin_user.role = UserRoleEnum.ADMIN
+    admin_user.password = hash_pw(admin_user.password)
+    
+    db_session.add(admin_user)
+    await db_session.commit()
+    await db_session.refresh(admin_user)
+
+    response_logging_admin = await client.post(url="/login",
+                                         data={
+                                                "username":"superusertest",
+                                                "password":"testpassword123",
+                                         }
+                                           )
+
+    return response_logging_admin.json()["access_token"]
+
+
+
