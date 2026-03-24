@@ -2,6 +2,7 @@
 from httpx import AsyncClient, Response
 
 from app.core.models_mixins.mixin_status import StatusEnum
+from app.tests.conftest import GOOD_USER_DATA_GLOBAL_TEST
 from app.users.models import UserRoleEnum
 from app.users.models import User
 
@@ -11,13 +12,7 @@ from app.users.models import User
 # ==================================================================================== #
 
 # global data:
-user_data_creation =  {
-    "username":"usernametest",
-    "password":"testpassword123",
-    "email":"test@test.com",
-    "phone_number":"123456789",
-    "birth":"2000-02-02",
-} 
+user_data_creation = GOOD_USER_DATA_GLOBAL_TEST
 
 async def test_create_normal_user_success(client: AsyncClient):
 
@@ -210,8 +205,7 @@ async def test_get_me_success(client: AsyncClient, create_user_response: Respons
                           })
     
     assert response.status_code == 200
-    assert "\"username\":\"usernametest\"" in response.text
-
+    assert response.json()["username"] == "usernametest"
 
 async def test_get_me_admin_success(client: AsyncClient, get_admin_user_token):
 
@@ -226,7 +220,7 @@ async def test_get_me_admin_success(client: AsyncClient, get_admin_user_token):
 
 
 
-async def test_get_me_fail_bad_token(client: AsyncClient, create_user_response: Response, get_created_user_token):
+async def test_get_me_fail_bad_token(client: AsyncClient, create_user_response: Response):
 
     assert create_user_response.status_code == 201
 
@@ -243,7 +237,7 @@ async def test_get_me_fail_bad_token(client: AsyncClient, create_user_response: 
 
 
 
-async def test_get_me_fail_no_token(client: AsyncClient, create_user_response: Response, get_created_user_token):
+async def test_get_me_fail_no_token(client: AsyncClient, create_user_response: Response):
 
     assert create_user_response.status_code == 201
 
@@ -347,7 +341,7 @@ async def test_soft_delete_user_success(client: AsyncClient, create_user_respons
     
 
 
-async def test_soft_delete_user_fail_no_token(client: AsyncClient, create_user_response: Response, get_created_user_token:str, get_user_object):
+async def test_soft_delete_user_fail_no_token(client: AsyncClient, create_user_response: Response, get_user_object):
 
     assert create_user_response.status_code == 201
     assert get_user_object.deleted_at == None
@@ -365,7 +359,7 @@ async def test_soft_delete_fail_last_admin(client: AsyncClient,get_admin_user: U
     assert get_admin_user.deleted_at == None
 
     response = await client.delete("users/me",
-                                   headers={"Authorization":f"Bearer {get_admin_user_token} "})
+                                   headers={"Authorization":f"Bearer {get_admin_user_token}"})
 
     assert response.status_code == 403
     assert "can\'t delete last admin" in response.text
@@ -399,14 +393,14 @@ async def test_swap_role_fail_no_admin(client: AsyncClient, get_created_user_tok
                                   headers={"Authorization":f"Bearer {get_created_user_token}"}
                                     )
 
-    assert response.status_code == 401
+    assert response.status_code == 403
     assert "don\'t have required role" in response.text
 
 
 
 async def test_swap_role_fail_self_admin(client: AsyncClient, get_admin_user_token: str, get_admin_user: User):
 
-    assert get_admin_user.role == UserRoleEnum.ADMIN # default value
+    assert get_admin_user.role == UserRoleEnum.ADMIN # precondition
 
     response = await client.patch(url=f"users/{get_admin_user.id}/role",
                                   json={"new_role": str(UserRoleEnum.PRACTITIONER.value)},
@@ -441,21 +435,21 @@ async def test_swap_status_success(client: AsyncClient, get_admin_user_token:str
 
 async def test_swap_status_fail_no_admin(client: AsyncClient, get_created_user_token: str, get_user_object: User):
 
-    assert get_user_object.status == StatusEnum.ACTIVE # default value
+    assert get_user_object.status == StatusEnum.ACTIVE # precondition
 
     response = await client.patch(url=f"users/{get_user_object.id}/status",
                                   json={"new_status": str(StatusEnum.ARCHIVED.value)},
                                   headers={"Authorization":f"Bearer {get_created_user_token}"}
                                     )
 
-    assert response.status_code == 401
+    assert response.status_code == 403
     assert "don\'t have required role" in response.text
 
 
 
 async def test_swap_status_fail_self_admin(client: AsyncClient, get_admin_user_token: str, get_admin_user: User):
 
-    assert get_admin_user.status == StatusEnum.ACTIVE # default value
+    assert get_admin_user.status == StatusEnum.ACTIVE # precondition
 
     response = await client.patch(url=f"users/{get_admin_user.id}/status",
                                   json={"new_status": str(StatusEnum.ARCHIVED.value)},
