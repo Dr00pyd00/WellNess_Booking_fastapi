@@ -1,6 +1,6 @@
 from datetime import date
 import pytest
-from httpx import ASGITransport, AsyncClient
+from httpx import ASGITransport, AsyncClient, Response
 
 from app.core.security.pw_hashing import hash_pw
 from app.main import app
@@ -9,6 +9,7 @@ from app.dependencies.database import get_db
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.config import app_settings
 from app.users.models import User, UserRoleEnum
+from app.users.services import get_user_by_id_or_404
 
 # ===================================== #
 # ======== GLOBAL    ================== #
@@ -101,6 +102,14 @@ async def create_user_response(client: AsyncClient):
 
     return response
 
+# avoir l'objet user direct:
+@pytest.fixture
+async def get_user_object(client: AsyncClient, create_user_response: Response, db_session: AsyncSession):
+    user_id = create_user_response.json()["id"]
+    return await get_user_by_id_or_404(user_id=user_id, db=db_session)
+
+
+
 # avoir la reponse login 
 @pytest.fixture
 async def get_created_user_token(client: AsyncClient, create_user_response):
@@ -117,7 +126,7 @@ async def get_created_user_token(client: AsyncClient, create_user_response):
 
 # avoir un admin:
 @pytest.fixture
-async def get_admin_user_token(client: AsyncClient, db_session: AsyncSession):
+async def get_admin_user(client: AsyncClient, db_session: AsyncSession):
 
     data ={
             "username":"superusertest",
@@ -133,7 +142,12 @@ async def get_admin_user_token(client: AsyncClient, db_session: AsyncSession):
     
     db_session.add(admin_user)
     await db_session.commit()
-    await db_session.refresh(admin_user)
+    await db_session.refresh(admin_user )
+
+    return admin_user
+
+@pytest.fixture
+async def get_admin_user_token(client: AsyncClient, get_admin_user: User):
 
     response_logging_admin = await client.post(url="/login",
                                          data={
