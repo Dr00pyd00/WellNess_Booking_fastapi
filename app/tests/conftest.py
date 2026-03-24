@@ -87,7 +87,7 @@ async def client(db_session: AsyncSession):
 # ======== USERS PRESETS   ============ #
 # ===================================== #
 
-good_user_data = {
+GOOD_USER_DATA_GLOBAL_TEST = {
     "username":"usernametest",
     "password":"testpassword123",
     "email":"test@test.com",
@@ -98,7 +98,7 @@ good_user_data = {
 # Creer 1 user automatiquement:
 @pytest.fixture
 async def create_user_response(client: AsyncClient):
-    response = await client.post(url="/users/", json=good_user_data)
+    response = await client.post(url="/users/", json=GOOD_USER_DATA_GLOBAL_TEST)
 
     return response
 
