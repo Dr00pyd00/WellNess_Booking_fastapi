@@ -49,7 +49,7 @@ def user_try_update_pw_but_old_wrong_error_msg(user_id:int):
 def user_dont_have_required_role_error_msg():
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="user dont have required role."
+        detail="user don't have required role."
     )
 
 
