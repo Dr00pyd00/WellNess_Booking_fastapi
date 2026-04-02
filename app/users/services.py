@@ -11,8 +11,10 @@ from app.users.exceptions import admin_cant_change_status_or_role_for_other_admi
 from app.users.models import User, UserRoleEnum
 from app.users.schemas import UserCreationFormSchema, UserFilterRoleStatusDeletedSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
 
+# ================================================================ #
+#  HELPERS — fonctions internes, non exposées au router            #
+# ================================================================ #
 
-# Functions =========================================================================================================== #
 async def get_user_by_id_or_404(user_id:int, db: AsyncSession)->User:
     """try find user if not exist raise HTTPException 404 NOT FOUND
 
@@ -80,13 +82,10 @@ async def get_user_by_email_or_404(user_email: str, db: AsyncSession)->User:
 
 
 
-# ----------------------------------- # 
-# --------- ALL --------------------- #
-# ----------------------------------- #
+# ================================================================ #
+#  USER — services accessibles à tout utilisateur connecté         #
+# ================================================================ #
 
-# ==================== GET ===============================#
-
-# GET ALL USERS 
 async def get_all_users_service(
         db: AsyncSession,
         skip: int,

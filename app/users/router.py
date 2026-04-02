@@ -1,12 +1,10 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Body, Depends, Path, status, Query
-from sqlalchemy import desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies.database import get_db
 from app.dependencies.jwt import get_current_user, required_roles
-from app.users.exceptions import user_already_soft_deleted_error_msg
 from app.users.schemas import UserCreationFormSchema, UserDataFromDbSchema, UserFilterRoleStatusDeletedSchema, UserSwapRoleFormSchema, UserSwapStatusFormSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
 from app.users.services import create_user_service, delete_current_user_service, get_all_users_service, restore_user_soft_deleted_as_admin_service, soft_delete_user_by_id_as_admin_service, swap_user_role_by_admin_service, swap_user_status_by_admin_service, update_user_password_service, update_user_profile_service
 from app.users.users_filter import get_user_filters_role_status_softdeleted
@@ -19,15 +17,10 @@ router = APIRouter(
 )
 
 
+# ================================================================ #
+#  USER — routes accessibles à tout utilisateur connecté           #
+# ================================================================ #
 
-
-# ----------------------------------- # 
-# --------- ALL --------------------- #
-# ----------------------------------- #
-
-# ==================== GET ===============================#
-
-# ME : the current user
 @router.get(
         "/me", 
         status_code=status.HTTP_200_OK, 
@@ -39,7 +32,7 @@ async def get_me(
     
     return current_user
 
-# SEE ALL USER (filters in query)
+
 @router.get(
         "/all_list", 
         status_code=status.HTTP_200_OK, 
@@ -60,9 +53,7 @@ async def get_all_users(
         users_filters=users_filters
     )
 
-# ==================== POST ==============================#
 
-# CREATE USER 
 @router.post(
         path="/",
         status_code=status.HTTP_201_CREATED,
@@ -76,11 +67,6 @@ async def create_user(
     return await create_user_service(user_data=user_form_data_fields, db=db)
 
 
-# ==================== PUT ===============================#
-
-# ==================== PATCH =============================#
-
-# UPDATE PROFILE : NOT THE PASSWORD:
 @router.patch(
         "/me",
         status_code=status.HTTP_200_OK ,
@@ -98,7 +84,7 @@ async def update_user_profile(
         db=db
     )
 
-# UPDATE CHANGE PASSWORD WITH VERIF:
+
 @router.patch(
         "/me/password",
         status_code=status.HTTP_200_OK,
@@ -116,15 +102,13 @@ async def update_user_password(
         db=db
     )
 
-# ==================== DELETE ============================#
 
-# SOFT DELETE CURRENT USER
 @router.delete(
         "/me", 
         status_code=status.HTTP_200_OK,
         response_model=UserDataFromDbSchema,
                )
-async def delete_user_by_id_service(
+async def delete_current_user(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)]
 )->UserDataFromDbSchema:
@@ -136,20 +120,11 @@ async def delete_user_by_id_service(
 
 
 
-# ----------------------------------- # 
-# --------- ADMIN ONLY -------------- #
-# ----------------------------------- #
-
-# ==================== GET ===============================#
-
-# ==================== POST ==============================#
-
-# ==================== PUT ===============================#
-
-# ==================== PATCH =============================#
+# ================================================================ #
+#  ADMIN — routes réservées aux admins                             #
+# ================================================================ #
 
 
-# RESTORE USER SOFT DELETED
 @router.patch(
         "/{user_id}/restore",
         status_code=status.HTTP_200_OK,
@@ -158,7 +133,7 @@ async def delete_user_by_id_service(
 async def admin_restore_user(
     current_user: Annotated[User, Depends(required_roles(UserRoleEnum.ADMIN))],
     db: Annotated[AsyncSession, Depends(get_db)],
-    user_id: Annotated[int, Path(..., description="user ID to delete (as admin).")]
+    user_id: Annotated[int, Path(..., description="user ID to restore (as admin).")]
 )->User:
     
     return await restore_user_soft_deleted_as_admin_service(
@@ -167,7 +142,7 @@ async def admin_restore_user(
         db=db
     )
 
-# SWAP USER ROLE 
+
 @router.patch(
     "/{user_id}/role",
     status_code=status.HTTP_200_OK,
@@ -188,7 +163,7 @@ async def admin_change_user_role(
     )
 
 
-# SWAP USER STATUS 
+
 @router.patch(
     "/{user_id}/status",
     status_code=status.HTTP_200_OK,
@@ -196,7 +171,7 @@ async def admin_change_user_role(
     )
 async def admin_change_user_status(
     current_user: Annotated[User, Depends(required_roles(UserRoleEnum.ADMIN))],
-    user_id: Annotated[int, Path(..., description="user ID you want to swap role.")],
+    user_id: Annotated[int, Path(..., description="user ID you want to swap status.")],
     new_status: UserSwapStatusFormSchema,  
     db: Annotated[AsyncSession, Depends(get_db)],
 )->UserDataFromDbSchema:
@@ -209,9 +184,7 @@ async def admin_change_user_status(
     )
 
 
-# ==================== DELETE ============================#
 
-# DELETE OTHER USER AS ADMIN:
 @router.delete(
     "/{user_id}/",
     status_code=status.HTTP_200_OK,
@@ -229,20 +202,6 @@ async def admin_delete_other_user(
         db=db,
     )
 
-   # user_id: Annotated[int, Query(..., description="ID of user who want to delete.")],
-# ----------------------------------- # 
-# --------- PRACTITIONER ONLY ------- #
-# ----------------------------------- #
-
-# ==================== GET ===============================#
-
-# ==================== POST ==============================#
-
-# ==================== PUT ===============================#
-
-# ==================== PATCH =============================#
-
-# ==================== DELETE ============================#
 
 
 
