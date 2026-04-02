@@ -1,6 +1,4 @@
 
-from pydoc import text
-
 from httpx import AsyncClient, Response
 
 from app.users.models import UserRoleEnum
