@@ -7,7 +7,16 @@ from sqlalchemy import func, select, or_
 from app.core.exceptions import item_already_exist_field_error_msg, item_not_found_error_msg
 from app.core.models_mixins.mixin_status import StatusEnum
 from app.core.security.pw_hashing import hash_pw, verify_pw
-from app.users.exceptions import admin_cant_change_status_or_role_for_other_admin_error_msg, admin_cant_self_change_role_error_msg, admin_cant_self_change_status_error_msg, non_admin_user_try_delete_other_user_error_msg, try_soft_delete_last_admin_error_msg, user_already_soft_deleted_error_msg, user_is_not_soft_deleted, user_try_patch_other_user_error_msg, user_try_update_pw_but_old_wrong_error_msg
+from app.users.exceptions import (
+    admin_cant_change_status_or_role_for_other_admin_error_msg,
+    admin_cant_self_change_role_error_msg,
+    admin_cant_self_change_status_error_msg,
+    non_admin_user_try_delete_other_user_error_msg,
+    try_soft_delete_last_admin_error_msg,
+    user_already_soft_deleted_error_msg,
+    user_is_not_soft_deleted,
+    user_try_update_pw_but_old_wrong_error_msg
+)
 from app.users.models import User, UserRoleEnum
 from app.users.schemas import UserCreationFormSchema, UserFilterRoleStatusDeletedSchema, UserUpdatePasswordFormSchema, UserUpdateProfileFormSchema
 
@@ -102,11 +111,9 @@ async def get_all_users_service(
     Returns:
         List[User]: User list
     """
-
     # base:
     # inclure pagination
     query = select(User).offset(skip).limit(limit)
-
 
     # inclure filters
     if users_filters.role:
@@ -117,8 +124,6 @@ async def get_all_users_service(
         query = query.where(User.deleted_at == None)
 
     result =  await db.execute(query)
-
-
     users_list = result.scalars().all()
     # scalars() : extrait les objets pythons 
     # all() : les mets dans une liste
@@ -127,7 +132,6 @@ async def get_all_users_service(
 
 
 
-# GET ONE USER BY ID:
 async def get_user_by_id_service(
         user_id:int, 
         db: AsyncSession
@@ -147,9 +151,6 @@ async def get_user_by_id_service(
     return user
 
 
-# ==================== POST ==============================#
-
-# CREATE USER:
 
 async def create_user_service(
         user_data: UserCreationFormSchema,
@@ -191,9 +192,6 @@ async def create_user_service(
         if existing_user.email == user_data.email:
             item_already_exist_field_error_msg("User", "email")   
         
-            
-
-    # hash pw:
     user_data_dict = user_data.model_dump()
     user_data_dict["password"] = hash_pw(user_data_dict["password"])
 
@@ -204,11 +202,8 @@ async def create_user_service(
 
     return new_user
 
-# ==================== PUT ===============================#
 
-# ==================== PATCH =============================#
 
-# UPDATE PROFILE : NOT PASSWORD
 async def update_user_profile_service(
         current_user: User,
         new_user_data: UserUpdateProfileFormSchema,
@@ -228,17 +223,16 @@ async def update_user_profile_service(
     user = await get_user_by_id_or_404(user_id=current_user.id, db=db)
 
     if new_user_data:
-
         new_user_data_dict = new_user_data.model_dump(exclude_none=True)
         for k,v in new_user_data_dict.items():
             setattr(user,k,v)
-
         await db.commit()
         await db.refresh(user)
 
     return user
 
-# UPDATE PROFILE PASSWORD ONLY WITH VERIF
+
+
 async def update_user_password_service(
         current_user: User,
         new_user_pw_data: UserUpdatePasswordFormSchema,
@@ -247,7 +241,6 @@ async def update_user_password_service(
     
     user = await get_user_by_id_or_404(user_id=current_user.id, db=db)
 
-    # check old pw :
     old_pw_good = verify_pw(new_user_pw_data.old_password, user.password)
     if not old_pw_good:
         user_try_update_pw_but_old_wrong_error_msg(user_id=user.id)
@@ -261,14 +254,7 @@ async def update_user_password_service(
     return user
 
 
- 
-
-
-
-
-# ==================== DELETE ============================#
    
-# delete current_user account
 async def delete_current_user_service(
         current_user: User,
         db: AsyncSession,
@@ -299,20 +285,12 @@ async def delete_current_user_service(
 
 
 
-# ----------------------------------- # 
-# --------- ADMIN ONLY -------------- #
-# ----------------------------------- #
-
-# ==================== GET ===============================#
-
-# ==================== POST ==============================#
-
-# ==================== PUT ===============================#
-
-# ==================== PATCH =============================#
 
 
-# RESTTORE A SOFT DELETED USER AS ADMIN
+# ================================================================ #
+#  ADMIN — services réservés aux admins                            #
+# ================================================================ #
+
 async def restore_user_soft_deleted_as_admin_service(
         current_user: User,
         user_id: int, # user id to restore
@@ -353,12 +331,6 @@ async def restore_user_soft_deleted_as_admin_service(
 
     
 
-    
-
-
-
-
-# SWAP STATUS by ADMIN:
 async def swap_user_status_by_admin_service(
         admin_id: int,
         user_to_swap_id: int,
@@ -392,7 +364,7 @@ async def swap_user_status_by_admin_service(
     return user
  
  
-# SWAP ROLE by ADMIN:
+
 async def swap_user_role_by_admin_service(
         admin_id: int,
         user_to_swap_id: int,
@@ -425,9 +397,7 @@ async def swap_user_role_by_admin_service(
     return user
     
 
-# ==================== DELETE ============================#
 
-# Delete user  by ID as ADMIN
 async def soft_delete_user_by_id_as_admin_service(
         current_user: User,
         user_id: int, # user id to delete
@@ -473,23 +443,6 @@ async def soft_delete_user_by_id_as_admin_service(
     
 
  
-
-# ----------------------------------- # 
-# --------- PRACTITIONER ONLY ------- #
-# ----------------------------------- #
-
-# ==================== GET ===============================#
-
-# ==================== POST ==============================#
-
-# ==================== PUT ===============================#
-
-# ==================== PATCH =============================#
-
-# ==================== DELETE ============================#
-
-
-
 
 
 
