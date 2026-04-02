@@ -132,14 +132,14 @@ class UserUpdatePasswordFormSchema(BaseModel):
         ...,
         min_length=5,
         max_length=150,
-        description="New Password <strin>: 5 to 150 chars.",
+        description="New Password <string>: 5 to 150 chars.",
     )
 
     @field_validator("new_password")
     @classmethod
     def verify_passowrd_complexity(cls, input:str)->str:
         if not any(char.isdigit() for char in input):
-            raise ValueError("<passwor> must containt at least ONE digit.")
+            raise ValueError("<password> must contain at least ONE digit.")
         if not any(char.isalpha() for char in input):
             raise ValueError("<password> must contain at least ONE alpha char.")
         return input
@@ -183,7 +183,7 @@ class UserUpdateProfileFormSchema(BaseModel):
     @classmethod
     def verify_age_possible(cls, input):
         if input >= date.today():
-            raise ValueError("<birth> must be greater than Now.")
+            raise ValueError("<birth> date must be in the past.")
         if input <= date.today() - relativedelta(years=120) :
             raise ValueError("<birth>, your age can't be greater than 120 years")
         return input
