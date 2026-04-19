@@ -2,9 +2,10 @@ from decimal import Decimal # mieux pour les prix, plus precis
 
 from pydantic import BaseModel, Field
 
-
+from app.core.models_mixins.mixin_status import StatusEnum
 from app.practitioners.models import PractitionerSpecialtyEnum
 from app.users.schemas import UserDataFromDbSchema
+from app.practitioners.models import PractitionerSpecialtyEnum
 
 
 
@@ -65,3 +66,15 @@ class PractitionerDataForPatientsSchema(BaseModel):
     address: str 
     price: Decimal | None = None 
     bio: str | None = None
+
+
+
+
+# ============================= #
+# ==== FILTERS ================ #
+# ============================= #
+
+class PractitionerFilterSpecialityStatusDeletedSchema(BaseModel):
+    speciality: PractitionerSpecialtyEnum | None = None
+    status: StatusEnum | None = None
+    see_deleted: bool = False
