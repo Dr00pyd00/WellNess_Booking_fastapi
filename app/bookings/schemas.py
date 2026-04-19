@@ -34,4 +34,4 @@ class PatientBookingDataForPractitionerSchema(BaseModel):
 
     patient: UserDataFromDbSchema
     availability: AvailabilityUserReservationViewSchema
-    message_to_practitioner: str
+    message_to_practitioner: str | None = None
