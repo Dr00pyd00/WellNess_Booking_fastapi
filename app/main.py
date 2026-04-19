@@ -17,6 +17,6 @@ app.include_router(auth_router)
 
 @app.get("/")
 def root():
-    return {"message":f"host: {app_settings.db_url}"}
+    return {"message":f"THis is WellNess ROOT!"}
 
 
