@@ -63,5 +63,5 @@ class PractitionerDataForPatientsSchema(BaseModel):
     speciality: PractitionerSpecialtyEnum
     is_remote_possible: bool
     address: str 
-    price: Decimal
-    bio: str 
+    price: Decimal | None = None 
+    bio: str | None = None
