@@ -442,7 +442,7 @@ async def test_swap_status_fail_no_admin(client: AsyncClient, get_created_user_t
                                   headers={"Authorization":f"Bearer {get_created_user_token}"}
                                     )
 
-    assert response.status_code == 401
+    assert response.status_code == 403
     assert "don\'t have required role" in response.text
 
 
