@@ -18,7 +18,7 @@ class PractitionerCreationFormSchema(BaseModel):
 
     speciality: PractitionerSpecialtyEnum
 
-    is_remote_possible: bool
+    is_remote_possible: bool 
 
     address: str = Field(
         ...,
@@ -37,6 +37,29 @@ class PractitionerCreationFormSchema(BaseModel):
     )
 
 
+# UPDATE =================================
+class PractitionerUpdateFormSchema(BaseModel):
+
+    speciality: PractitionerSpecialtyEnum | None = None
+
+    is_remote_possible: bool  | None = None
+
+    address: str = Field(
+        ...,
+        min_length=5,
+        max_length=200,
+        description="Adress <string>: 5 to 200 char.",
+        default=None
+    )
+
+    price: Decimal | None = None
+
+    bio: str = Field(
+        min_length=10,
+        max_length=1000,
+        description="Biography/Curriculum: 10 to 1000 char.",
+        default=None
+    )
     
 # ============================= #
 # ==== READS ================== #

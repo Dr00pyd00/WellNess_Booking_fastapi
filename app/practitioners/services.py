@@ -4,13 +4,21 @@ from sqlalchemy import select
 
 from app.core.exceptions import item_not_found_error_msg
 
-from app.practitioners.schemas import PractitionerCreationFormSchema, PractitionerDataFromDbSchema, PractitionerFilterSpecialityStatusDeletedSchema
+from app.practitioners.schemas import (
+    PractitionerCreationFormSchema,
+    PractitionerDataFromDbSchema,
+    PractitionerFilterSpecialityStatusDeletedSchema,
+    PractitionerUpdateFormSchema,
+
+)
 from app.users.services import get_user_by_id_or_404
 from app.users.models import User, UserRoleEnum
 from app.practitioners.models import Practitioner
 from app.practitioners.exceptions import (
     try_create_practitioner_profile_when_not_practitioner_error_msg,
     try_create_practitioner_profile_when_already_have_error_msg,
+    try_update_inexistant_profile_error_msg,
+
     )
 
 
@@ -84,6 +92,28 @@ async def get_all_practitioners_service(
     practitioners_list = result.scalars().all()
     return practitioners_list
 
+
+
+async def update_pratictioner_profile_service(
+    current_user: User,
+    new_data_practitioner: PractitionerUpdateFormSchema,
+    db: AsyncSession,
+)-> Practitioner:
+    # trouver l'id practitioner et checker si ca marche:
+    result = await db.execute(select(Practitioner).where(Practitioner.user_id == current_user.id))
+    existing_profile = result.scalar_one_or_none()
+    if existing_profile is None:
+       try_update_inexistant_profile_error_msg()
+
+    if new_data_practitioner:
+        new_data_practitioner_dict = new_data_practitioner.model_dump(exclude_none=True)
+        for k,v in new_data_practitioner_dict.items():
+            setattr(existing_profile, k,v)
+        await db.commit()
+        await db.refresh(existing_profile)
+
+    return existing_profile
     
+
         
         
