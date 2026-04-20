@@ -60,13 +60,16 @@ async def create_practitioner_profile_service(
 
     if user.role != UserRoleEnum.PRACTITIONER:
         try_create_practitioner_profile_when_not_practitioner_error_msg()
-    elif user.practitioner_profile is not None:
+
+    result = await db.execute(select(Practitioner).where(Practitioner.user_id == user_id))
+    existing_profile = result.scalar_one_or_none()
+    if existing_profile is not None:
         try_create_practitioner_profile_when_already_have_error_msg()
 
     new_profile = Practitioner(**practitioner_data.model_dump(), user_id=user_id)
     db.add(new_profile)
     await db.commit()
-    await db.refresh(new_profile)
+    await db.refresh(new_profile, ["user_profile"])
     return new_profile
 
 

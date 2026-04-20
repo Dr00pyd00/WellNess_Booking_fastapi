@@ -1,12 +1,14 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Body, Depends, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.users.models import User
 from app.dependencies.database import get_db
+from app.dependencies.jwt import get_current_user
 from app.practitioners.practitioners_filters import get_practitioner_speciality_status_softdeleted
-from app.practitioners.schemas import PractitionerDataForPatientsSchema, PractitionerFilterSpecialityStatusDeletedSchema
-from app.practitioners.services import get_all_practitioners_service
+from app.practitioners.schemas import PractitionerCreationFormSchema, PractitionerDataForPatientsSchema, PractitionerDataFromDbSchema, PractitionerFilterSpecialityStatusDeletedSchema
+from app.practitioners.services import create_practitioner_profile_service, get_all_practitioners_service
 
 
 router = APIRouter(
@@ -37,4 +39,23 @@ async def get_all_practitioners(
         limit=limit,
         skip=skip,
         practitioner_filters=practitioner_filters
+    )
+
+
+
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=PractitionerDataFromDbSchema,
+)
+async def create_practitioner_profile(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    practitioner_data: Annotated[PractitionerCreationFormSchema, Body(description="Fields for new profile practitioner page.")],
+)->PractitionerDataFromDbSchema:
+    
+    return await create_practitioner_profile_service(
+        user_id=current_user.id,
+        practitioner_data=practitioner_data,
+        db=db
     )
