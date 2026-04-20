@@ -32,7 +32,7 @@ async def get_all_practitioners(
 
 )-> List[PractitionerDataForPatientsSchema]:
     
-    return get_all_practitioners_service(
+    return await get_all_practitioners_service(
         db=db,
         limit=limit,
         skip=skip,
