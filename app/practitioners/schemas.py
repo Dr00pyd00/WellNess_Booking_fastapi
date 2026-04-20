@@ -45,7 +45,6 @@ class PractitionerUpdateFormSchema(BaseModel):
     is_remote_possible: bool  | None = None
 
     address: str = Field(
-        ...,
         min_length=5,
         max_length=200,
         description="Adress <string>: 5 to 200 char.",
