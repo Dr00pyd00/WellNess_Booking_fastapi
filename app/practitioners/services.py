@@ -18,7 +18,9 @@ from app.practitioners.exceptions import (
     try_create_practitioner_profile_when_not_practitioner_error_msg,
     try_create_practitioner_profile_when_already_have_error_msg,
     try_update_inexistant_profile_error_msg,
-    user_try_update_pract_not_own_error_msg
+    user_try_delete_own_pract_profile_already_soft_deleted_error_msg,
+    user_try_update_pract_not_own_error_msg,
+    user_try_delete_pract_not_own_error_msg
 
     )
 
@@ -126,6 +128,22 @@ async def update_practitioner_profile_service(
         await db.commit()
         await db.refresh(pract, ["user_profile"])
 
+    return pract
+
+
+async def soft_delete_practitioner_profile_service(
+        current_user_id:int,
+        pract_id:int,
+        db:AsyncSession,
+)->PractitionerDataFromDbSchema:
+    pract = await get_practitioner_by_id_or_404(practitioner_id=pract_id, db=db)
+    if pract.user_id != current_user_id:
+        user_try_delete_pract_not_own_error_msg()
+    if pract.deleted_at is not None:
+        user_try_delete_own_pract_profile_already_soft_deleted_error_msg()
+    pract.soft_delete()
+    await db.commit()
+    await db.refresh(pract, ["user_profile"])
     return pract
 
         

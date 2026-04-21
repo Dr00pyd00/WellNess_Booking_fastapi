@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal # mieux pour les prix, plus precis
 
 from pydantic import BaseModel, Field
@@ -77,6 +78,8 @@ class PractitionerDataFromDbSchema(BaseModel):
     bio: str | None = None 
     user_id: int 
     user_profile: UserDataFromDbSchema
+    created_at: datetime
+    deleted_at: datetime | None
 
 # PRACTITIONER DATA FOR PATIENTS:
 class PractitionerDataForPatientsSchema(BaseModel):
@@ -88,6 +91,9 @@ class PractitionerDataForPatientsSchema(BaseModel):
     address: str 
     price: Decimal | None = None 
     bio: str | None = None
+    created_at: datetime
+    deleted_at: datetime | None
+
 
 
 

@@ -18,6 +18,7 @@ from app.practitioners.services import (
         create_practitioner_profile_service,
         get_all_practitioners_service,
         get_practitioner_by_id_service,
+        soft_delete_practitioner_profile_service,
         update_practitioner_profile_service,
 
         )
@@ -86,7 +87,7 @@ async def create_practitioner_profile(
 
 
 @router.patch(
-        "/{pract_id}/update",
+        "/{pract_id}",
         status_code=status.HTTP_200_OK,
         response_model=PractitionerDataFromDbSchema
         )
@@ -104,6 +105,22 @@ async def update_practitioner_profile(
             new_data=new_data,
             )
 
+
+@router.delete(
+    "/{pract_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=PractitionerDataFromDbSchema,
+)
+async def soft_delete_practitioner_profile(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    pract_id: Annotated[int, Path(..., description="practitioner ID you want to soft delete.")],
+)-> PractitionerDataFromDbSchema:
+    return await soft_delete_practitioner_profile_service(
+        current_user_id=current_user.id,
+        db=db,
+        pract_id=pract_id,
+    )
 
 
 
