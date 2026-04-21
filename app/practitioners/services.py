@@ -141,7 +141,7 @@ async def update_practitioner_profile_service(
     if new_data:
         new_data_dict = new_data.model_dump(exclude_none=True)
         for k,v in new_data_dict.items():
-            setatt(pract,k,v)
+            setattr(pract,k,v)
         await db.commit()
         await db.refresh(pract, ["user_profile"])
 
