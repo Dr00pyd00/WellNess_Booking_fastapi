@@ -94,7 +94,7 @@ async def update_practitioner_profile(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
     new_data: PractitionerUpdateFormSchema,
-    pract_id: Annotated[int, Path(..., descritpion="practitioner ID you want to update profile.")],
+    pract_id: Annotated[int, Path(..., descritption="practitioner ID you want to update profile.")],
     )->PractitionerDataFromDbSchema:
 
     return await update_practitioner_profile_service(

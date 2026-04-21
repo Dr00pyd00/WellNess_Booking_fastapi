@@ -104,25 +104,6 @@ async def get_practitioner_by_id_service(
     return pract
 
 
-async def update_pratictioner_profile_service(
-    current_user: User,
-    new_data_practitioner: PractitionerUpdateFormSchema,
-    db: AsyncSession,
-)-> Practitioner:
-    # trouver l'id practitioner et checker si ca marche:
-    result = await db.execute(select(Practitioner).where(Practitioner.user_id == current_user.id))
-    existing_profile = result.scalar_one_or_none()
-    if existing_profile is None:
-       try_update_inexistant_profile_error_msg()
-
-    if new_data_practitioner:
-        new_data_practitioner_dict = new_data_practitioner.model_dump(exclude_none=True)
-        for k,v in new_data_practitioner_dict.items():
-            setattr(existing_profile, k,v)
-        await db.commit()
-        await db.refresh(existing_profile)
-
-    return existing_profile
     
 
 async def update_practitioner_profile_service(
