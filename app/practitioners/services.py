@@ -18,6 +18,7 @@ from app.practitioners.exceptions import (
     try_create_practitioner_profile_when_not_practitioner_error_msg,
     try_create_practitioner_profile_when_already_have_error_msg,
     try_update_inexistant_profile_error_msg,
+    user_try_update_pract_not_own_error_msg
 
     )
 
@@ -48,8 +49,6 @@ async def get_practitioner_by_id_or_404(practitioner_id:int, db: AsyncSession)->
 # ================================================================ #
 #  USER — services accessibles à tout utilisateur connecté         #
 # ================================================================ #
-
-
 
 async def create_practitioner_profile_service(
     user_id: int,
@@ -96,6 +95,14 @@ async def get_all_practitioners_service(
     return practitioners_list
 
 
+async def get_practitioner_by_id_service(
+        db: AsyncSession,
+        pract_id: int,
+        )->Practitioner:
+
+    pract = await get_practitioner_by_id_or_404(practitioner_id=pract_id, db=db)
+    return pract
+
 
 async def update_pratictioner_profile_service(
     current_user: User,
@@ -117,6 +124,28 @@ async def update_pratictioner_profile_service(
 
     return existing_profile
     
+
+async def update_practitioner_profile_service(
+        current_user_id: int,
+        pract_id:int,
+        new_data: PractitionerUpdateFormSchema,
+        db: AsyncSession,
+        )-> Practitioner:
+
+    pract = await get_practitioner_by_id_or_404(practitioner_id=pract_id, db=db)
+
+    # check si le current est le pract sinon erreur:
+    if current_user_id != pract.user_id:
+        user_try_update_pract_not_own_error_msg()
+
+    if new_data:
+        new_data_dict = new_data.model_dump(exclude_none=True)
+        for k,v in new_data_dict.items():
+            setatt(pract,k,v)
+        await db.commit()
+        await db.refresh(pract, ["user_profile"])
+
+    return pract
 
         
         

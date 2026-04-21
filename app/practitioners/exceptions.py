@@ -20,3 +20,9 @@ def try_update_inexistant_profile_error_msg():
         status_code=status.HTTP_403_FORBIDDEN,
         detail="This account don't have practitioner profile."
     )
+
+def user_try_update_pract_not_own_error_msg():
+    raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This user is not the practitioner profile owner."
+            )
