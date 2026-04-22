@@ -38,3 +38,9 @@ def user_try_delete_own_pract_profile_already_soft_deleted_error_msg():
         status_code=status.HTTP_403_FORBIDDEN,
         detail="the practitioner profile already soft deleted. "
     )
+
+def try_get_practitioner_detail_when_soft_deleted_error_msg():
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="This practitioner profile is soft deleted."
+    )

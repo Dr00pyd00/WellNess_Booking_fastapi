@@ -17,10 +17,11 @@ from app.practitioners.models import Practitioner
 from app.practitioners.exceptions import (
     try_create_practitioner_profile_when_not_practitioner_error_msg,
     try_create_practitioner_profile_when_already_have_error_msg,
-    try_update_inexistant_profile_error_msg,
+    try_get_practitioner_detail_when_soft_deleted_error_msg,
     user_try_delete_own_pract_profile_already_soft_deleted_error_msg,
     user_try_update_pract_not_own_error_msg,
-    user_try_delete_pract_not_own_error_msg
+    user_try_delete_pract_not_own_error_msg,
+    try_get_practitioner_detail_when_soft_deleted_error_msg
 
     )
 
@@ -103,6 +104,8 @@ async def get_practitioner_by_id_service(
         )->Practitioner:
 
     pract = await get_practitioner_by_id_or_404(practitioner_id=pract_id, db=db)
+    if pract.deleted_at is not None:
+        try_get_practitioner_detail_when_soft_deleted_error_msg()
     return pract
 
 
