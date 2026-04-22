@@ -5,11 +5,10 @@ from sqlalchemy import (
     Column,
     ForeignKey,
     Integer,
-    String,
     Time,
     text,
     Enum as sqlEnum,
-
+    Date,
 )
 from sqlalchemy.orm import relationship
 
@@ -41,9 +40,14 @@ class Availability(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
     )
 
     # ====== planning ========
-    day = Column(
-        sqlEnum(DaysEnum, name="days_enum"), 
-        nullable=False,
+    # day = Column(
+    #     sqlEnum(DaysEnum, name="days_enum"), 
+    #     nullable=False,
+    # )
+
+    date =  Column(
+        Date,
+        nullable=False
     )
 
     start_time = Column(

@@ -1,4 +1,5 @@
 from datetime import time
+from datetime import date as d_date
 
 from pydantic import BaseModel, Field
 
@@ -13,9 +14,14 @@ from app.practitioners.schemas import PractitionerDataForPatientsSchema
 # CREATION =================================
 class AvailabilityCreationFormSchema(BaseModel):
 
-    day: DaysEnum = Field(
+    # day: DaysEnum = Field(
+    #     ...,
+    #     description="Chose day for rendez vous."
+    # )
+
+    date: d_date = Field(
         ...,
-        description="Chose day for rendez vous."
+        description="date of the slot."
     )
 
     start_time: time = Field(
