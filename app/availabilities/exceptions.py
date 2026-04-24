@@ -27,3 +27,9 @@ def avail_already_soff_deleted_error_msg():
         status_code=status.HTTP_403_FORBIDDEN,
         detail="This availability already soft deleted."
     )
+
+def try_find_avail_but_inactive_or_delete_error_msg():
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Availability deleted or inactive."
+    )
