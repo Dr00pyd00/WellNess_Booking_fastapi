@@ -22,3 +22,7 @@ class SoftDeleteMixin():
 
     def restore_from_soft_delete(self):
         self.deleted_at = None
+
+    @classmethod
+    def not_deleted_only(cls):
+        return cls.deleted_at.is_(None)
