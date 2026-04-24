@@ -1,5 +1,6 @@
 from datetime import time
 from datetime import date as d_date
+import datetime
 
 from pydantic import BaseModel, Field
 
@@ -39,12 +40,28 @@ class AvailabilityCreationFormSchema(BaseModel):
 # ==== READS ================== #
 # ============================= #
 
+# GLOBAL DATA
+class AvailabilityFullReservationViewSchema(BaseModel):
+
+    model_config={"from_attributes":True}
+
+    # day: DaysEnum
+    id: int
+    date: d_date
+    start_time: time 
+    end_time: time 
+    practitioner_id: int
+    created_at: datetime.datetime
+    deleted_at: datetime.datetime | None
+
 # USER CAN SEE WHEN HE WANT TO LOCK RDV:
 class AvailabilityUserReservationViewSchema(BaseModel):
 
     model_config={"from_attributes":True}
 
-    day: DaysEnum
+    # day: DaysEnum
+    id: int
+    date: d_date
     start_time: time 
     end_time: time 
     practitioner_id: int
