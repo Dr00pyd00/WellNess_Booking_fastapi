@@ -50,6 +50,7 @@ class AvailabilityFullReservationViewSchema(BaseModel):
     date: d_date
     start_time: time 
     end_time: time 
+    is_booked: bool
     practitioner_id: int
     created_at: datetime.datetime
     deleted_at: datetime.datetime | None
@@ -64,5 +65,6 @@ class AvailabilityUserReservationViewSchema(BaseModel):
     date: d_date
     start_time: time 
     end_time: time 
+    is_booked: bool
     practitioner_id: int
 
