@@ -34,7 +34,7 @@ class StatusMixin():
 
     @classmethod
     def active_only(cls):
-        return cls.status.is_(StatusEnum.ACTIVE)
+        return cls.status == StatusEnum.ACTIVE
 
 
 
