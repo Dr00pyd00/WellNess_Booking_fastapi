@@ -32,6 +32,7 @@ class PatientBookingDataForPractitionerSchema(BaseModel):
 
     model_config={"from_attributes":True}
 
-    patient: UserDataFromDbSchema
+    id: int
+    user_profile: UserDataFromDbSchema
     availability: AvailabilityUserReservationViewSchema
     message_to_practitioner: str | None = None
