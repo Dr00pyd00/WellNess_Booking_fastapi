@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 from jose import JWTError, jwt
 
 from app.core.config import app_settings
-from app.core.security.execptions import invalid_token_payload_error_msg
+from app.core.security.exceptions import invalid_token_payload_error_msg
 from app.core.security.schemas import TokenDataForCreationSchema, VerifyTokenOutPutDataSchema
 from app.users.models import UserRoleEnum
 

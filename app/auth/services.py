@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.core.security.execptions import invalid_credentials_for_token_error_msg
+from app.core.security.exceptions import invalid_credentials_for_token_error_msg
 from app.core.security.jwt import create_access_token
 from app.core.security.pw_hashing import verify_pw
 from app.core.security.schemas import BearerTokenSchema, TokenDataForCreationSchema
