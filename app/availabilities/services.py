@@ -123,7 +123,7 @@ async def soft_delete_avail_slot_service(
     if slot_to_delete.practitioner_profile.user_id != current_user.id:
         pract_try_soft_delete_not_own_avail_error_msg()
     if slot_to_delete.deleted_at is not None:
-        avail_already_soff_deleted_error_msg()
+        avail_already_soft_deleted_error_msg()
     
     slot_to_delete.soft_delete()
     await db.commit()
