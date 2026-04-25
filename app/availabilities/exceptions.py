@@ -22,14 +22,30 @@ def pract_try_soft_delete_not_own_avail_error_msg():
         detail="The current practitioner is not the avail owner."
     )
 
-def avail_already_soff_deleted_error_msg():
+def avail_already_soft_deleted_error_msg():
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="This availability already soft deleted."
     )
 
-def try_find_avail_but_inactive_or_delete_error_msg():
+def try_find_avail_but_inactive_error_msg():
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail="Availability deleted or inactive."
+        detail="Availability inactive."
     )
+
+
+
+def try_find_avail_but_deleted_error_msg():
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Availability soft_deleted."
+    )
+
+
+def try_find_avail_but_inexistant_error_msg():
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Availability inexistant."
+    )
+
