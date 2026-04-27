@@ -1,7 +1,10 @@
 
+from datetime import datetime
+from typing import List
 from pydantic import BaseModel, Field
 
 from app.availabilities.schemas import AvailabilityUserReservationViewSchema
+from app.core.models_mixins.mixin_status import StatusEnum
 from app.users.schemas import UserDataFromDbSchema
 
 
@@ -36,3 +39,14 @@ class PatientBookingDataForPractitionerSchema(BaseModel):
     user_profile: UserDataFromDbSchema
     availability: AvailabilityUserReservationViewSchema
     message_to_practitioner: str | None = None
+    created_at: datetime
+    deleted_at: datetime | None
+
+
+# FILTERS 
+class BookingFilterStatusDeletedBookedPractPatientSchema(BaseModel):
+    status: List[StatusEnum] | None = None
+    see_deleted: bool = False
+    by_practitioner: int | None = None
+    by_patient: int | None = None
+
