@@ -1,3 +1,4 @@
+from typing import Never
 from fastapi import HTTPException, status
 
 from app.core.models_mixins.mixin_status import StatusEnum
@@ -7,7 +8,7 @@ from app.core.models_mixins.mixin_status import StatusEnum
 # =========== GENERICS ITEMS ERRORS ================================= #
 
 # not found
-def item_not_found_error_msg(item_name:str = "item")->None:
+def item_not_found_error_msg(item_name:str = "item")->Never:
     """raise HTTPException if item not found 
 
     Args:
@@ -22,7 +23,7 @@ def item_not_found_error_msg(item_name:str = "item")->None:
     )
 
 # soft_deleted
-def item_soft_deleted_error_msg(item_name:str = "item")->None:
+def item_soft_deleted_error_msg(item_name:str = "item")->Never:
     """raise HTTPexception if item is soft-deleted
 
     Args:
@@ -38,7 +39,7 @@ def item_soft_deleted_error_msg(item_name:str = "item")->None:
     )
 
 # already exist (Field) : ie = "email already exist"
-def item_already_exist_field_error_msg(item_name:str = "item", field_name:str = "field")->None:
+def item_already_exist_field_error_msg(item_name:str = "item", field_name:str = "field")->Never:
     """raise HTTPException if item already exist
 
     Args:
@@ -55,7 +56,7 @@ def item_already_exist_field_error_msg(item_name:str = "item", field_name:str = 
 
 
 # users : no token or invalid token 
-def no_token_or_invalid_token_error_msg()->None:
+def no_token_or_invalid_token_error_msg()->Never:
     """raise HTTPExcetpion if invalid token / inexistant token
 
     Raises:
@@ -68,7 +69,7 @@ def no_token_or_invalid_token_error_msg()->None:
 
 
 # user_type unauthorized (StatusEnum)
-def user_status_unauthorized_error_msg(user_status:StatusEnum)->None:
+def user_status_unauthorized_error_msg(user_status:StatusEnum)->Never:
     """raise HTTPException if user unauthorized
 
     Args:
