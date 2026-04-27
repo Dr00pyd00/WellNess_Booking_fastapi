@@ -1,5 +1,4 @@
 from datetime import date
-from os import wait
 from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -137,11 +136,11 @@ async def admin_booking_list_service(
     )
 
     if filters.status:
-        query = query.where(Booking.status in filters.status)
+        query = query.where(Booking.status.in_(filters.status))
     if filters.see_deleted is False:
         query = query.where(Booking.deleted_at == None)
     if filters.by_practitioner:
-        query = query.where(Booking.availability.practitioner_id == filters.by_practitioner) 
+        query = query.where(Availability.practitioner_id == filters.by_practitioner) 
     if filters.by_patient:
         query = query.where(Booking.user_id == filters.by_patient)
 
