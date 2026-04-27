@@ -18,7 +18,7 @@ class TakeBookingByPatientFormSchema(BaseModel):
 
     availability_id: int
 
-    message_to_practitioner: str = Field(
+    message_to_practitioner: str | None = Field(
         min_length=5,
         max_length=800,
         description="Message <string>: 5 to 800 chars.",
