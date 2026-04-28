@@ -1,6 +1,7 @@
 from enum import Enum as PyEnum
 
-from sqlalchemy import Column, Enum
+from sqlalchemy import Enum 
+from sqlalchemy.orm import Mapped, mapped_column
 
 # enum pour les status :
 class StatusEnum(PyEnum):
@@ -24,18 +25,15 @@ class StatusMixin():
     
     """
 
-    status = Column(
+    status : Mapped[StatusEnum] = mapped_column(
         Enum(StatusEnum, name="status_enum"),
-        nullable=False,
         server_default="ACTIVE",
         default=StatusEnum.ACTIVE,
-
-    )
+            )
 
     @classmethod
     def active_only(cls):
         return cls.status == StatusEnum.ACTIVE
-
 
 
 
