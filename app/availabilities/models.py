@@ -9,6 +9,7 @@ from sqlalchemy import (
     Time,
     text,
     Date,
+    UniqueConstraint
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -32,6 +33,15 @@ class DaysEnum(PyEnum):
 class Availability(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
 
     __tablename__ = "availabilities"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "practitioner_id",
+            "date",
+            "start_time",
+            name="uq_practitioner_date_start"
+        ),
+    )
 
     id: Mapped[int] = mapped_column(
             primary_key=True,
