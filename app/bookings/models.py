@@ -1,6 +1,6 @@
 
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.core.database import Base
@@ -30,7 +30,7 @@ class Booking(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
     user_profile = relationship("User", back_populates="owner_bookings")
 
     # availability 
-    availability: Mapped[int] = mapped_column(
+    availability_id: Mapped[int] = mapped_column(
         ForeignKey("availabilities.id", ondelete="CASCADE"),
         )
 
