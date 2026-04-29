@@ -1,13 +1,12 @@
+from datetime import date as date_t
 from enum import Enum as PyEnum
 
 from sqlalchemy import (
-    Column,
     Date,
     String,
-    Integer,
     Enum as sqlEnum,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.core.database import Base
 from app.core.models_mixins.mixin_soft_delete import SoftDeleteMixin
@@ -27,53 +26,46 @@ class User(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
 
     __tablename__ = "users"
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        nullable=False,
+    id: Mapped[int] = mapped_column(
+            primary_key=True,
+            )
 
-    )
+    username: Mapped[str] = mapped_column(
+            String,
+            nullable=False,
+            )
 
-    username = Column(
-        String,
-        nullable=False,
+    password: Mapped[str] = mapped_column(
+            String,
+            nullable=False,
+            )
 
-    )
+    name: Mapped[str | None] = mapped_column(
+            String,
+            nullable=True,
+            )
+    email: Mapped[str] = mapped_column(
+            String,
+            nullable=False,
+            unique=True,
+            )
 
-    password = Column(
-        String,
-        nullable=False
-    )
-
-    name = Column(
-        String,
-        nullable=True,
-
-    )
-
-    email = Column(
-        String,
-        nullable=False,
-        unique=True
-    )
-
-    phone_number = Column(
-        String, 
-        nullable=True,
-    )
+    phone_number: Mapped[str | None] = mapped_column(
+            String,
+            nullable=True,
+            )
 
     # Date : année + mois + jour  (sans heures etc)
-    birth = Column(
-        Date,
-        nullable=True,
-    )
+    birth: Mapped[date_t | None] = mapped_column(
+            Date,
+            nullable=True,
+            )
 
-    role = Column(
-        sqlEnum(UserRoleEnum, name="user_role_enum"),
-        nullable=False,
-        server_default="PATIENT",
-        default=UserRoleEnum.PATIENT
-    )
+    role: Mapped[UserRoleEnum] = mapped_column(
+            sqlEnum(UserRoleEnum, name="user_role_enum"),
+            server_default="PATIENT",
+            default=UserRoleEnum.PATIENT,
+            )
 
     # foreign keys ========================== #
 

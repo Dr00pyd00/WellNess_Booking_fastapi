@@ -1,16 +1,16 @@
+from datetime import date as date_t, time
+
 from enum import Enum as PyEnum
+
 
 from sqlalchemy import (
     Boolean,
-    Column,
     ForeignKey,
-    Integer,
     Time,
     text,
-    Enum as sqlEnum,
     Date,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.core.database import Base
 from app.core.models_mixins.mixin_soft_delete import SoftDeleteMixin
@@ -33,11 +33,10 @@ class Availability(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
 
     __tablename__ = "availabilities"
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        nullable=False
-    )
+    id: Mapped[int] = mapped_column(
+            primary_key=True,
+            )
+
 
     # ====== planning ========
     # day = Column(
@@ -45,39 +44,34 @@ class Availability(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
     #     nullable=False,
     # )
 
-    date =  Column(
-        Date,
-        nullable=False
-    )
+    date: Mapped[date_t] = mapped_column(
+            Date,
+            )
 
-    start_time = Column(
-        Time,
-        nullable=False
-    )
+    start_time: Mapped[time] = mapped_column(
+            Time,
+            )
 
-
-    end_time = Column(
-        Time,
-        nullable=False
-    )
+    end_time: Mapped[time] = mapped_column(
+            Time,
+            )
     # =======================
 
-    is_booked = Column(
-        Boolean,
-        nullable=False,
-        server_default=text("FALSE"),
-        default=False,
-    )
-
+    is_booked: Mapped[bool] = mapped_column(
+            Boolean,
+            nullable=False,
+            server_default=text("FALSE"),
+            default=False,
+            )
+            
 
     # foreign keys
     
     # Practitioner:
-    practitioner_id = Column(
-        Integer,
-        ForeignKey("practitioners.id", ondelete="CASCADE"),
-        nullable=False,
-    )
+    practitioner_id: Mapped[int] = mapped_column(
+            ForeignKey("practitioners.id", ondelete="CASCADE"),
+            )
+            
     practitioner_profile = relationship("Practitioner", back_populates="own_availabilities")
 
     # booking:

@@ -1,18 +1,15 @@
 from enum import Enum as PyEnum
 
+from decimal import Decimal # mieux pour les prix, plus precis
+
 from sqlalchemy import (
     Boolean,
-    Column,
-    Integer,
     Numeric,
-    String,
     Enum as sqlEnum,
-    func,
     text,
     ForeignKey,
-    
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.core.database import Base
 from app.core.models_mixins.mixin_soft_delete import SoftDeleteMixin
@@ -39,50 +36,42 @@ class Practitioner(TimeStampMixin, StatusMixin, SoftDeleteMixin, Base):
 
     __tablename__= 'practitioners'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-    )
+    id: Mapped[int] = mapped_column(
+            primary_key=True,
+            )
 
-    speciality = Column(
-        sqlEnum(PractitionerSpecialtyEnum, name="practitioner_speciality_enum"),
-        nullable=False,
-    )
+    speciality: Mapped[PractitionerSpecialtyEnum] = mapped_column(
+            sqlEnum(PractitionerSpecialtyEnum, name="practitioner_speciality_enum"),
+            )
 
     # consult a distance
-    is_remote_possible = Column(
-        Boolean,
-        nullable=False,
-        server_default=text("FALSE"),
-        default=False,
-    )
+    is_remote_possible: Mapped[bool] = mapped_column(
+            Boolean,
+            server_default=text("False"),
+            default=False,
+            )
+    
+    address: Mapped[str] = mapped_column()
 
-    address = Column(
-        String,
-        nullable=False
-    )
-
-    price = Column(
-        # precision => 10 chiffre au total
-        # scale => 2 chiffre apres virgule
+    price: Mapped[Decimal | None] = mapped_column(
         Numeric(precision=10,scale=2),
-        nullable=True, # non renseigner ?
-    )
-
-    bio = Column(
-        String,
         nullable=True,
-    )   
+        )
+
+    bio: Mapped[str | None] = mapped_column(
+            nullable=True,
+            )
 
     # Foreign key for User:
-    user_id = Column(
-        Integer,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        unique=True  # force one to one 
-    )
+    user_id: Mapped[int] = mapped_column(
+            ForeignKey("users.id", ondelete="CASCADE"),
+            nullable=False,
+            unique=True,
+            )
 
     user_profile = relationship("User", back_populates="practitioner_profile")
 
     # Foreign key for Availability:
     own_availabilities = relationship("Availability", back_populates="practitioner_profile")
+
+
