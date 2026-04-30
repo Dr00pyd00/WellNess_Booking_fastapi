@@ -1,9 +1,10 @@
-from typing import Annotated, List
+
+from typing import Annotated, List, Any
 
 from fastapi import APIRouter, Body, Depends, status, Query, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from practitioners.models import Practitioner
+from app.practitioners.models import Practitioner
 from app.users.models import User
 from app.dependencies.database import get_db
 from app.dependencies.jwt import get_current_user
@@ -45,7 +46,7 @@ async def get_all_practitioners(
     skip: Annotated[int, Query(ge=0, description="number of practitioners to skip.")] = 0,
     limit: Annotated[int, Query(ge=1, le=100, description="number of practitioners in a request: 1 to 100 max.")] = 10,
 
-)-> List[Practitioner]:
+)->Any:
     
     return await get_all_practitioners_service(
         db=db,
