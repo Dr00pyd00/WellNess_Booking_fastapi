@@ -1,5 +1,6 @@
+
 from datetime import date
-from typing import List
+from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -7,7 +8,11 @@ from sqlalchemy.orm import selectinload
 
 from app.availabilities.models import Availability
 from app.availabilities.services import get_availability_by_id_or_404
-from app.bookings.exceptions import user_try_delete_booking_not_owner_error_msg, user_try_take_already_booked_slot_error_msg, user_try_take_slot_in_past_error_msg
+from app.bookings.exceptions import (
+        user_try_delete_booking_not_owner_error_msg, 
+        user_try_take_already_booked_slot_error_msg, 
+        user_try_take_slot_in_past_error_msg,
+        )
 from app.bookings.models import Booking
 from app.bookings.schemas import BookingFilterStatusDeletedBookedPractPatientSchema, TakeBookingByPatientFormSchema
 from app.core.exceptions import item_not_found_error_msg
@@ -91,7 +96,7 @@ async def user_delete_booking_service(
 async def user_booking_list_service(
         current_user:User,
         db:AsyncSession,
-)->List[Booking]:
+)->Sequence[Booking]:
     
     result = await db.execute(
         select(Booking)
@@ -123,7 +128,7 @@ async def admin_booking_list_service(
         skip:int,
         filters: BookingFilterStatusDeletedBookedPractPatientSchema,
         db:AsyncSession
-)->List[Booking]:
+)->Sequence[Booking]:
     
     query = (
         select(Booking)
