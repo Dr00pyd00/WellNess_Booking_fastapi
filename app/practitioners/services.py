@@ -1,4 +1,4 @@
-from typing import List
+from typing import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -6,7 +6,6 @@ from app.core.exceptions import item_not_found_error_msg
 
 from app.practitioners.schemas import (
     PractitionerCreationFormSchema,
-    PractitionerDataFromDbSchema,
     PractitionerFilterSpecialityStatusDeletedSchema,
     PractitionerUpdateFormSchema,
 
@@ -21,8 +20,6 @@ from app.practitioners.exceptions import (
     user_try_delete_own_pract_profile_already_soft_deleted_error_msg,
     user_try_update_pract_not_own_error_msg,
     user_try_delete_pract_not_own_error_msg,
-    try_get_practitioner_detail_when_soft_deleted_error_msg
-
     )
 
 
@@ -57,7 +54,7 @@ async def create_practitioner_profile_service(
     user_id: int,
     practitioner_data:  PractitionerCreationFormSchema,
     db: AsyncSession,
-)->PractitionerDataFromDbSchema:
+)->Practitioner:
     user:User = await get_user_by_id_or_404(user_id=user_id, db=db)
 
     if user.role != UserRoleEnum.PRACTITIONER:
@@ -81,7 +78,7 @@ async def get_all_practitioners_service(
         skip:int,
         limit:int,
         practitioner_filters: PractitionerFilterSpecialityStatusDeletedSchema 
-)-> List[Practitioner]:
+)-> Sequence[Practitioner]:
     
     query = select(Practitioner).offset(skip).limit(limit)
 
@@ -138,7 +135,7 @@ async def soft_delete_practitioner_profile_service(
         current_user_id:int,
         pract_id:int,
         db:AsyncSession,
-)->PractitionerDataFromDbSchema:
+)->Practitioner:
     pract = await get_practitioner_by_id_or_404(practitioner_id=pract_id, db=db)
     if pract.user_id != current_user_id:
         user_try_delete_pract_not_own_error_msg()

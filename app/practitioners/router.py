@@ -3,6 +3,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Body, Depends, status, Query, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from practitioners.models import Practitioner
 from app.users.models import User
 from app.dependencies.database import get_db
 from app.dependencies.jwt import get_current_user
@@ -44,7 +45,7 @@ async def get_all_practitioners(
     skip: Annotated[int, Query(ge=0, description="number of practitioners to skip.")] = 0,
     limit: Annotated[int, Query(ge=1, le=100, description="number of practitioners in a request: 1 to 100 max.")] = 10,
 
-)-> List[PractitionerDataForPatientsSchema]:
+)-> List[Practitioner]:
     
     return await get_all_practitioners_service(
         db=db,
@@ -62,7 +63,7 @@ async def get_all_practitioners(
 async def get_practitioner_detail(
     db: Annotated[AsyncSession, Depends(get_db)],
     pract_id: Annotated[int, Path(..., description="ID of practitioner detail you want to see.")],
-    )->PractitionerDataForPatientsSchema:
+    )->Practitioner:
 
     return await get_practitioner_by_id_service(pract_id=pract_id, db=db)
     
@@ -77,7 +78,7 @@ async def create_practitioner_profile(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
     practitioner_data: Annotated[PractitionerCreationFormSchema, Body(description="Fields for new profile practitioner page.")],
-)->PractitionerDataFromDbSchema:
+)->Practitioner:
     
     return await create_practitioner_profile_service(
         user_id=current_user.id,
@@ -95,8 +96,8 @@ async def update_practitioner_profile(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
     new_data: PractitionerUpdateFormSchema,
-    pract_id: Annotated[int, Path(..., descritption="practitioner ID you want to update profile.")],
-    )->PractitionerDataFromDbSchema:
+    pract_id: Annotated[int, Path(..., description="practitioner ID you want to update profile.")],
+    )->Practitioner:
 
     return await update_practitioner_profile_service(
             current_user_id=current_user.id,
@@ -115,7 +116,7 @@ async def soft_delete_practitioner_profile(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
     pract_id: Annotated[int, Path(..., description="practitioner ID you want to soft delete.")],
-)-> PractitionerDataFromDbSchema:
+)-> Practitioner:
     return await soft_delete_practitioner_profile_service(
         current_user_id=current_user.id,
         db=db,
