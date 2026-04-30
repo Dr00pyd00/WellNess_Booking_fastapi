@@ -8,17 +8,16 @@ from app.core.security.jwt import create_access_token
 from app.core.security.pw_hashing import verify_pw
 from app.core.security.schemas import BearerTokenSchema, TokenDataForCreationSchema
 from app.users.models import User
-from app.users.schemas import UserLoginFormSchema
 
 
 async def login_service(
-        user_credentials:UserLoginFormSchema,
+        user_credentials:OAuth2PasswordRequestForm,
         db: AsyncSession,
         )->BearerTokenSchema:
     """take user credentials "username" and "password", check pw and return bearer token if ok.
 
     Args:
-        user_credentials (UserLoginFormSchema): username + password
+        user_credentials (OAuth3PasswordRequestForm): username + password
         db (AsyncSession): database session
 
     Returns:
@@ -36,9 +35,10 @@ async def login_service(
     
     new_token = create_access_token(token_data=TokenDataForCreationSchema(sub=str(user.id)))
 
-    return {
-        "access_token": new_token,
-        "token_type": "Bearer"
-    }
+    return BearerTokenSchema(
+            access_token=new_token,
+            token_type="Bearer")
+
+
 
 
