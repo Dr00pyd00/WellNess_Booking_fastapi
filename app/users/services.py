@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import List
+
+from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select, or_
@@ -100,7 +100,7 @@ async def get_all_users_service(
         skip: int,
         limit: int,
         users_filters: UserFilterRoleStatusDeletedSchema
-)->List[User]:
+)->Sequence[User]:
     """get list of users 
 
     Args:
