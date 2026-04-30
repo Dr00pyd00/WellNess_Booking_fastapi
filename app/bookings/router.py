@@ -93,7 +93,7 @@ async def user_get_all_own_booking(
     response_model=List[PatientBookingDataForPractitionerSchema]
 )
 async def admin_get_all_booking(
-    current_user: Annotated[User, Depends(required_roles(UserRoleEnum.ADMIN))], 
+current_user: Annotated[User, Depends(required_roles(UserRoleEnum.ADMIN))], 
     db: Annotated[AsyncSession, Depends(get_db)],
     filters: Annotated[BookingFilterStatusDeletedBookedPractPatientSchema, 
                        Depends(get_booking_filters_status_deleted_bypatient_by_practitioner)],
