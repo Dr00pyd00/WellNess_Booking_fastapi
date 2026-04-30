@@ -1,5 +1,5 @@
 
-from typing import List
+from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -46,8 +46,8 @@ async def get_availability_by_id_or_404(avail_id:int, db:AsyncSession)->Availabi
     return avail
 
 
-async def get_all_free_avail_of_a_practitioner_or_none(pract_id:int, db:AsyncSession)->List[Availability] | None:
-    pract = await get_practitioner_by_id_or_404(practitioner_id=pract_id, db=db)
+async def get_all_free_avail_of_a_practitioner_or_none(pract_id:int, db:AsyncSession)->Sequence[Availability] | None:
+    _ = await get_practitioner_by_id_or_404(practitioner_id=pract_id, db=db)
     
     result = await db.execute(
         select(Availability)
@@ -69,7 +69,7 @@ async def get_all_free_avail_of_a_practitioner_or_none(pract_id:int, db:AsyncSes
 async def get_all_avail_of_a_practitioner_service(
         pract_id:int,
         db:AsyncSession
-)->List[Availability] :
+)->Sequence[Availability] :
     await get_practitioner_by_id_or_404(practitioner_id=pract_id,db=db)
 
     result = await db.execute(

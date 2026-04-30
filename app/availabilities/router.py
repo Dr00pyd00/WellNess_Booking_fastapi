@@ -1,4 +1,5 @@
-from typing import Annotated, List
+
+from typing import Annotated, List, Any
 
 from fastapi import APIRouter, Depends, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,7 +32,7 @@ router = APIRouter(
 async def get_all_availabilities(
     pract_id: Annotated[int, Path(..., description="Practitioner ID that you want check availabilities.")],
     db: Annotated[AsyncSession, Depends(get_db)]
-)->List[AvailabilityFullReservationViewSchema]:
+    )->Any:
     
     return await get_all_avail_of_a_practitioner_service(
         pract_id=pract_id,
@@ -48,7 +49,7 @@ async def create_availability_slot(
     current_user: Annotated[User, Depends(required_roles(UserRoleEnum.PRACTITIONER))],
     slot_data: AvailabilityCreationFormSchema,
     db: Annotated[AsyncSession, Depends(get_db)],
-)->AvailabilityUserReservationViewSchema:
+)->Any:
     
     return await create_avail_slot_service(
         current_user=current_user,
@@ -66,10 +67,13 @@ async def soft_delete_avail_slot(
     current_user: Annotated[User, Depends(required_roles(UserRoleEnum.PRACTITIONER))],
     avail_id: Annotated[int, Path(..., description="availability ID you want to soft_delete.")],
     db: Annotated[AsyncSession, Depends(get_db)],
-)->AvailabilityFullReservationViewSchema:
+)->Any:
     
     return await soft_delete_avail_slot_service(
         current_user=current_user,
         slot_id=avail_id,
         db=db
     )
+
+
+
